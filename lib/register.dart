@@ -6,6 +6,8 @@ import 'package:flutter_app/verification.dart';
 import 'dart:io';
 import 'dart:developer' as dev;
 import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 
 
@@ -18,8 +20,22 @@ class myRegisterPage extends StatefulWidget {
   _myRegisterPageState createState() => _myRegisterPageState();
 }
 class _myRegisterPageState extends State<myRegisterPage> {
+  final fnController = TextEditingController();
+  final lnController = TextEditingController();
+  final emController = TextEditingController();
+  final pwController = TextEditingController();
+  bool success = false;
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   File _image;
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    fnController.dispose();
+    lnController.dispose();
+    emController.dispose();
+    pwController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     final floating = FloatingActionButton(
@@ -28,6 +44,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
         child: Icon(Icons.add_a_photo)
     );
     final firstNameField = TextField(
+      controller: fnController,
       obscureText: false,
       style: style,
       decoration: InputDecoration(
@@ -37,6 +54,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
           OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
     final lastNameField = TextField(
+      controller: lnController,
       obscureText: false,
       style: style,
       decoration: InputDecoration(
@@ -46,6 +64,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
           OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
     final emailField = TextField(
+      controller: emController,
       obscureText: false,
       style: style,
       decoration: InputDecoration(
@@ -55,6 +74,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
           OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
     final passwordField = TextField(
+      controller: pwController,
       obscureText: true,
       style: style,
       decoration: InputDecoration(
@@ -70,10 +90,16 @@ class _myRegisterPageState extends State<myRegisterPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () { Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => myVerificationPage()),
-        );},
+        onPressed: () {
+          register();
+          if(success)
+            {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => myVerificationPage()),
+              );
+            }
+          },
         child: Text("Register",
             textAlign: TextAlign.center,
             style: style.copyWith(
@@ -135,5 +161,17 @@ class _myRegisterPageState extends State<myRegisterPage> {
     setState(() {
 //      _image = image;
     });
+  }
+  void register()async {
+    var url = 'http://10.0.2.2:5000/users';
+    final msg =
+    jsonEncode({'firstName':fnController.text, 'lastName':lnController.text, 'email': emController.text, 'password': pwController.text});
+    var response = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: msg);
+    print(msg);
+    if(response.statusCode == 200)
+      success = true;
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
   }
 }
