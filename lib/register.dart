@@ -8,7 +8,7 @@ import 'dart:developer' as dev;
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:password/password.dart';
 
 
 class myRegisterPage extends StatefulWidget {
@@ -24,7 +24,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
   final lnController = TextEditingController();
   final emController = TextEditingController();
   final pwController = TextEditingController();
-  bool success = false;
+  final algorithm = PBKDF2();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   File _image;
   @override
@@ -35,6 +35,11 @@ class _myRegisterPageState extends State<myRegisterPage> {
     emController.dispose();
     pwController.dispose();
     super.dispose();
+  }
+
+  String hashPassword(){
+    final hash = Password.hash(pwController.text, algorithm);
+    return hash;
   }
   @override
   Widget build(BuildContext context) {
@@ -92,13 +97,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
           register();
-          if(success)
-            {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => myVerificationPage()),
-              );
-            }
+
           },
         child: Text("Register",
             textAlign: TextAlign.center,
@@ -163,14 +162,17 @@ class _myRegisterPageState extends State<myRegisterPage> {
     });
   }
   void register()async {
-    var url = 'http://10.0.2.2:5000/users';
-    final msg =
-    jsonEncode({'firstName':fnController.text, 'lastName':lnController.text, 'email': emController.text, 'password': pwController.text});
+    var url = 'http://localhost:5000/users';
+    final msg = jsonEncode({'firstName':fnController.text, 'lastName':lnController.text, 'email': emController.text, 'password': hashPassword()});
     var response = await http.post(url,
         headers: {"Content-Type": "application/json"}, body: msg);
     print(msg);
     if(response.statusCode == 200)
-      success = true;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => myVerificationPage()),
+        );
+
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
   }
