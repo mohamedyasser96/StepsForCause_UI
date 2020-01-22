@@ -1,15 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
   // This widget is the root of your application.
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+   MyHomePageState createState() => MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class MyHomePageState extends State<MyHomePage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+
+  var token = '';
+  @override
+  @protected
+  @mustCallSuper
+  void initState()  {
+    super.initState();
+
+
+    getEmail();
+
+  }
+
+//  void simulateToken(t) async {
+//    //For testing purposes
+//    final prefs = await SharedPreferences.getInstance();
+//    prefs.setString('token', t);
+//  }
+
+  Future getEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('token')?? "44";
+    // logic to get email from backend using token
+    return token; //this will be changed to email
+  }
+
+
 
   @override
   Widget build(BuildContext context) {

@@ -3,6 +3,7 @@ import 'package:flutter_app/home.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:password/password.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class myLoginPage extends StatefulWidget {
@@ -16,19 +17,11 @@ class myLoginPage extends StatefulWidget {
 class myLoginPageState extends State<myLoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
-  int value = 0;
-
-  void increment() => value++;
-
-  void decrement() => value--;
-
   String token;
 
   final unController = TextEditingController();
   final pwController = TextEditingController();
   final algorithm = PBKDF2();
-
-
 
   @override
   void dispose() {
@@ -118,13 +111,23 @@ class myLoginPageState extends State<myLoginPage> {
     );
   }
 
+  void setToken(t) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', t);
+
+  }
+
   void login(email, pw) async {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
+    //for testing
+//    email = 'mohamed@dell.com';
+//    pw = "abc123";
+
     token = null;
     var url = 'http://10.41.1.239:5000/users/login';
-    final msg =
-        jsonEncode({'email': email, 'password': hashPassword(pw)});
+    var msg =
+         jsonEncode({'email': email, 'password': hashPassword(pw)});
     var response = await http.post(url,
         headers: {"Content-Type": "application/json"}, body: msg);
     print(msg);
@@ -137,10 +140,10 @@ class myLoginPageState extends State<myLoginPage> {
         context,
         MaterialPageRoute(builder: (context) => MyHomePage()),
       );
+      setToken(token);
     }
     else
       _showDialog(json.decode(response.body)['error']);
-    print(token);
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
   }
