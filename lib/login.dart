@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/home.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_app/utils/env.dart';
 import 'package:password/password.dart';
 
 
@@ -16,6 +15,12 @@ class myLoginPage extends StatefulWidget {
 
 class myLoginPageState extends State<myLoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+
+  int value = 0;
+
+  void increment() => value++;
+
+  void decrement() => value--;
 
   String token;
 
@@ -33,8 +38,8 @@ class myLoginPageState extends State<myLoginPage> {
     super.dispose();
   }
 
-  String hashPassword(){
-    final hash = Password.hash(pwController.text, algorithm);
+  String hashPassword(pw){
+    final hash = Password.hash(pw, algorithm);
     return hash;
   }
 
@@ -68,7 +73,7 @@ class myLoginPageState extends State<myLoginPage> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
-          login();
+          login(unController.text, pwController.text);
         },
         child: Text("Login",
             textAlign: TextAlign.center,
@@ -113,16 +118,17 @@ class myLoginPageState extends State<myLoginPage> {
     );
   }
 
-  void login() async {
+  void login(email, pw) async {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
-//    print(ip);
-    var url = 'http://localhost:5000/users/login';
+//    print(ip)
+    token = null;
+    var url = 'http://10.41.1.239:5000/users/login';
     final msg =
-        jsonEncode({'email': unController.text, 'password': hashPassword()});
+        jsonEncode({'email': email, 'password': hashPassword(pw)});
     var response = await http.post(url,
         headers: {"Content-Type": "application/json"}, body: msg);
     print(msg);
-    print(response);
+    print(response.statusCode);
     if(response.statusCode == 200)
       token = json.decode(response.body)['token'];
 
