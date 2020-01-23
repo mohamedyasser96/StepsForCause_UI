@@ -1,14 +1,12 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_app/verification.dart';
-//import 'package:image_picker_modern/image_picker_modern.dart';
 import 'dart:io';
-import 'dart:developer' as dev;
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:password/password.dart';
+import 'package:image_picker_modern/image_picker_modern.dart';
+
 
 
 class myRegisterPage extends StatefulWidget {
@@ -27,6 +25,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
   final algorithm = PBKDF2();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   File _image;
+  String _base64Image;
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -154,16 +153,25 @@ class _myRegisterPageState extends State<myRegisterPage> {
     );
   }
   Future getImage() async {
-    dev.log("fdaad");
-//    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var image = await ImagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 240.0,
+      maxWidth: 240.0,
+    );
+
+    var base64Image = image != null ? 'data:image/png;base64,' +
+        base64Encode(image.readAsBytesSync()) : '';
 
     setState(() {
-//      _image = image;
+      _image = image;
+      _base64Image = base64Image;
     });
   }
   void register()async {
     var url = 'http://172.20.10.6:5000/users';
-    final msg = jsonEncode({'firstName':fnController.text, 'lastName':lnController.text, 'email': emController.text, 'password': hashPassword()});
+    final msg = jsonEncode({'firstName':fnController.text,
+      'lastName':lnController.text, 'email': emController.text,
+      'password': hashPassword(), 'image': _base64Image});
     var response = await http.post(url,
         headers: {"Content-Type": "application/json"}, body: msg);
     print(msg);
