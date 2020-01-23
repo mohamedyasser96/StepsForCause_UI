@@ -139,9 +139,32 @@ class myLoginPageState extends State<myLoginPage> {
       );
     }
     else
-      print("Wrong Credentials");
-    print(token);
+      _showDialog(json.decode(response.body)['error']);
+
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
+  }
+
+  void _showDialog(err) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Incorrect!"),
+          content: new Text(err),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
