@@ -140,7 +140,7 @@ class myLoginPageState extends State<myLoginPage> {
     }
     else
       _showDialog(json.decode(response.body)['error']);
-    print(token);
+
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
   }
