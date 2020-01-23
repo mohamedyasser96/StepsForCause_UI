@@ -122,7 +122,7 @@ class myLoginPageState extends State<myLoginPage> {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
     token = null;
-    var url = 'http://10.41.1.239:5000/users/login';
+    var url = 'http://172.20.10.6:5000/users/login';
     final msg =
         jsonEncode({'email': email, 'password': hashPassword(pw)});
     var response = await http.post(url,
