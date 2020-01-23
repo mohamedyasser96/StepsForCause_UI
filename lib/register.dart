@@ -162,7 +162,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
     });
   }
   void register()async {
-    var url = 'http://localhost:5000/users';
+    var url = 'http://172.20.10.6:5000/users';
     final msg = jsonEncode({'firstName':fnController.text, 'lastName':lnController.text, 'email': emController.text, 'password': hashPassword()});
     var response = await http.post(url,
         headers: {"Content-Type": "application/json"}, body: msg);
@@ -170,7 +170,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
     if(response.statusCode == 200)
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => myVerificationPage()),
+          MaterialPageRoute(builder: (context) => myVerificationPage(email: emController.text)),
         );
 
     print('Response status: ${response.statusCode}');
