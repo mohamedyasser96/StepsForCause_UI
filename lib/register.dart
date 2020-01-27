@@ -1,13 +1,11 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_app/verification.dart';
-//import 'package:image_picker_modern/image_picker_modern.dart';
 import 'dart:io';
-import 'dart:developer' as dev;
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:password/password.dart';
+import 'package:image_picker_modern/image_picker_modern.dart';
 
 
 
@@ -24,9 +22,10 @@ class _myRegisterPageState extends State<myRegisterPage> {
   final lnController = TextEditingController();
   final emController = TextEditingController();
   final pwController = TextEditingController();
-  bool success = false;
+  final algorithm = PBKDF2();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   File _image;
+  String _base64Image;
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -35,6 +34,11 @@ class _myRegisterPageState extends State<myRegisterPage> {
     emController.dispose();
     pwController.dispose();
     super.dispose();
+  }
+
+  String hashPassword(){
+    final hash = Password.hash(pwController.text, algorithm);
+    return hash;
   }
   @override
   Widget build(BuildContext context) {
@@ -92,13 +96,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
           register();
-          if(success)
-            {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => myVerificationPage()),
-              );
-            }
+
           },
         child: Text("Register",
             textAlign: TextAlign.center,
@@ -155,22 +153,34 @@ class _myRegisterPageState extends State<myRegisterPage> {
     );
   }
   Future getImage() async {
-    dev.log("fdaad");
-//    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    var image = await ImagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 240.0,
+      maxWidth: 240.0,
+    );
+
+    var base64Image = image != null ? 'data:image/png;base64,' +
+        base64Encode(image.readAsBytesSync()) : '';
 
     setState(() {
-//      _image = image;
+      _image = image;
+      _base64Image = base64Image;
     });
   }
   void register()async {
-    var url = 'http://10.0.2.2:5000/users';
-    final msg =
-    jsonEncode({'firstName':fnController.text, 'lastName':lnController.text, 'email': emController.text, 'password': pwController.text});
+    var url = 'http://172.20.10.6:5000/users';
+    final msg = jsonEncode({'firstName':fnController.text,
+      'lastName':lnController.text, 'email': emController.text,
+      'password': hashPassword(), 'image': _base64Image});
     var response = await http.post(url,
         headers: {"Content-Type": "application/json"}, body: msg);
     print(msg);
     if(response.statusCode == 200)
-      success = true;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => myVerificationPage(email: emController.text)),
+        );
+
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
   }
