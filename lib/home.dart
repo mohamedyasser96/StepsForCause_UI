@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_app/login.dart';
+import 'package:flutter_app/Profile.dart';
 
 
 class MyHomePage extends StatefulWidget {
@@ -15,82 +17,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-  var imageBytes;
-  Uint8List bytes;
-  Uint8List image64;
-  getUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token')?? null;
 
-    var url = 'http://localhost:5000/users/user';
-
-    try{
-      var response = await http.get(url,
-          headers: {"Content-Type": "application/json", 'Authorization': 'Bearer $token'});
-
-      imageBytes = json.decode(response.body)['user']["image"];
-      final UriData data = Uri.parse(imageBytes).data;
-      print(data.isBase64);
-      bytes = data.contentAsBytes();
-      setState(() {
-        image64 = bytes;
-      });
-    }catch(err){
-      print("error" + err);
-    }
-
-  }
   void initState() {
     super.initState();
-    getUser();
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Profile"),
-      ),
       body: DefaultTabController(
         length: 4,
         child: new Scaffold(
           body: TabBarView(
             children: [
-              new Container(
-                color: Colors.white,
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    if(bytes != null)
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.white,
-                        child: Image.memory(
-                          image64,
-                          fit: BoxFit.contain,
-                        ),
-                      )
-                    else
-                      CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.blueAccent,
-                      child: Image.asset(
-                        'logo.png',
-                        fit: BoxFit.contain,
-                      ),
-                    )
+
+              MyProfilePage()
               ,
-                    new Text(
-                      "1200 steps",
-                      textScaleFactor: 1.5,
-                    )
-                  ],
-                ),
-              ),
-              new Container(
-                color: Colors.orange,
-              ),
+              myLoginPage()
+              ,
               new Container(
                 color: Colors.lightGreen,
               ),
