@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:password/password.dart';
-import 'package:image_picker_modern/image_picker_modern.dart';
+import 'package:image_picker/image_picker.dart';
 
 
 
