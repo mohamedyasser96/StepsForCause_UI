@@ -21,6 +21,7 @@ class myLoginPageState extends State<myLoginPage> {
 
   String token;
   var ip;
+  var port;
 
   void initState(){
     super.initState();
@@ -30,9 +31,9 @@ class myLoginPageState extends State<myLoginPage> {
 
   Future setEnv() async {
     await DotEnv().load('.env');
-
+    port = DotEnv().env['PORT'];
     ip = DotEnv().env['SERVER_IP'];
-    print(ip);
+
   }
 
   final unController = TextEditingController();
@@ -139,7 +140,8 @@ class myLoginPageState extends State<myLoginPage> {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
     token = null;
-    var url = 'http://' + ip + ':5000/users/login';
+    var url = 'http://' + ip + ':' + port + '/users/login';
+    print(url);
     final msg =
         jsonEncode({'email': email, 'password': hashPassword(pw)});
     var response = await http.post(url,

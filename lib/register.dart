@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:password/password.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 class myRegisterPage extends StatefulWidget {
@@ -26,6 +26,21 @@ class _myRegisterPageState extends State<myRegisterPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   File _image;
   String _base64Image;
+  var ip;
+  var port;
+
+  void initState(){
+    super.initState();
+    setEnv();
+
+  }
+
+  Future setEnv() async {
+    await DotEnv().load('.env');
+    port = DotEnv().env['PORT'];
+    ip = DotEnv().env['SERVER_IP'];
+  }
+
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -168,7 +183,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
     });
   }
   void register()async {
-    var url = 'http://172.20.10.6:5000/users';
+    var url = 'http://' + ip + ':' + port +'/users';
     final msg = jsonEncode({'firstName':fnController.text,
       'lastName':lnController.text, 'email': emController.text,
       'password': hashPassword(), 'image': _base64Image});
