@@ -3,6 +3,7 @@ import 'package:flutter_app/home.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:password/password.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class myLoginPage extends StatefulWidget {
@@ -16,11 +17,6 @@ class myLoginPage extends StatefulWidget {
 class myLoginPageState extends State<myLoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
-  int value = 0;
-
-  void increment() => value++;
-
-  void decrement() => value--;
 
   String token;
 
@@ -118,11 +114,17 @@ class myLoginPageState extends State<myLoginPage> {
     );
   }
 
+  void setToken(t) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', t);
+
+  }
+
   void login(email, pw) async {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
     token = null;
-    var url = 'http://172.20.10.6:5000/users/login';
+    var url = 'http://localhost:5000/users/login';
     final msg =
         jsonEncode({'email': email, 'password': hashPassword(pw)});
     var response = await http.post(url,
@@ -137,6 +139,7 @@ class myLoginPageState extends State<myLoginPage> {
         context,
         MaterialPageRoute(builder: (context) => MyHomePage()),
       );
+      setToken(token);
     }
     else
       _showDialog(json.decode(response.body)['error']);
