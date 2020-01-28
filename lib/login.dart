@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:password/password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 class myLoginPage extends StatefulWidget {
@@ -19,6 +20,20 @@ class myLoginPageState extends State<myLoginPage> {
 
 
   String token;
+  var ip;
+
+  void initState(){
+    super.initState();
+    setEnv();
+
+  }
+
+  Future setEnv() async {
+    await DotEnv().load('.env');
+
+    ip = DotEnv().env['SERVER_IP'];
+    print(ip);
+  }
 
   final unController = TextEditingController();
   final pwController = TextEditingController();
@@ -124,7 +139,7 @@ class myLoginPageState extends State<myLoginPage> {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
     token = null;
-    var url = 'http://localhost:5000/users/login';
+    var url = 'http://' + ip + ':5000/users/login';
     final msg =
         jsonEncode({'email': email, 'password': hashPassword(pw)});
     var response = await http.post(url,
