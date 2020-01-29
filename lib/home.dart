@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_app/services/user.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_app/login.dart';
 import 'package:flutter_app/Profile.dart';
-
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -24,19 +21,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final status = Provider.of<AuthStatus>(context);
+
     return new Scaffold(
       body: DefaultTabController(
         length: 4,
         child: new Scaffold(
           body: TabBarView(
             children: [
-
-              MyProfilePage()
-              ,
-              myLoginPage()
-              ,
+              MyProfilePage(),
+              myLoginPage(),
               new Container(
                 color: Colors.lightGreen,
+                child: Center(
+                  child: MaterialButton(
+                    color: Colors.blueGrey,
+                    child: Text(status.index.toString()),
+                    onPressed: () => userService.signOut(),
+                  ),
+                ),
               ),
               new Container(
                 color: Colors.red,
