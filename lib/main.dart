@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/home.dart';
 import 'package:flutter_app/landing.dart';
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
           StreamProvider<AuthStatus>.value(value: userService.status),
 
           // See implementation details in next sections
-          StreamProvider<Profile>.value(value: userService.profile)
+          StreamProvider<FirebaseUser>.value(value: userService.user)
         ],
 
         // All data will be available in this child and descendents
@@ -27,9 +28,7 @@ class StartupWidget extends StatelessWidget {
     final status = Provider.of<AuthStatus>(context);
     switch (status) {
       case AuthStatus.authenticated:
-        return Container(
-          child: MyHomePage(),
-        );
+        return MyHomePage();
         break;
       case AuthStatus.undeterminate:
         return LoadingWidget();

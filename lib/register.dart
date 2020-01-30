@@ -24,7 +24,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final algorithm = PBKDF2();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   File _image;
-  String _base64Image;
   var ip;
   var port;
 
@@ -47,11 +46,6 @@ class _RegisterPageState extends State<RegisterPage> {
     emController.dispose();
     pwController.dispose();
     super.dispose();
-  }
-
-  String hashPassword() {
-    final hash = Password.hash(pwController.text, algorithm);
-    return hash;
   }
 
   @override
@@ -174,12 +168,41 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() {
       _image = image;
-      _base64Image = base64Image;
     });
   }
 
   void register() async {
-    userService.signUpWithEmailAndPassword(
-        emController.text, pwController.text, "$fnController $lnController");
+    try {
+      await userService.signUpWithEmailAndPassword(emController.text,
+          fnController.text + " " + lnController.text, pwController.text);
+      _showDialog(
+          "Verification", "Please confirm your email address and login.");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _showDialog(head, txt) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(head),
+          content: new Text(txt),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

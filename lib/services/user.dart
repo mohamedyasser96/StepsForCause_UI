@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
@@ -9,6 +11,8 @@ class Profile {
   final String name;
   final String email;
   final int stepCount;
+  String verificationCode;
+  bool isVerified;
 
   Profile({this.name, this.stepCount, this.email});
 
@@ -35,9 +39,15 @@ class UserService {
 
   // constructor
   UserService() {
+    loading.add(true);
     user = _auth.onAuthStateChanged;
-    status = user.map((u) =>
-        u != null ? AuthStatus.authenticated : AuthStatus.unauthenticated);
+    status = BehaviorSubject.seeded(AuthStatus.undeterminate).switchMap((s) {
+      return user.map((u) {
+        return u != null && u.isEmailVerified
+            ? AuthStatus.authenticated
+            : AuthStatus.unauthenticated;
+      });
+    });
     profile = user.switchMap((FirebaseUser u) {
       if (u != null) {
         return _db
@@ -66,22 +76,26 @@ class UserService {
 
     // Done
     loading.add(false);
-    print("signed in " + user.displayName);
+    print("signed in " + user.email);
     return user;
   }
 
-  void signUpWithEmailAndPassword(
+  Future<void> signUpWithEmailAndPassword(
       String email, String name, String password) async {
     loading.add(true);
     FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
             email: email, password: password))
         .user;
+    await _onSignUp(user, name);
+    loading.add(false);
 
-    _onSignUp(user, name);
+    user.sendEmailVerification();
   }
 
-  void _onSignUp(FirebaseUser user, String name) async {
+  Future<void> _onSignUp(FirebaseUser user, String name) async {
     DatabaseReference ref = _db.reference().child("users").child(user.uid);
+
+    var rng = new Random();
 
     return ref.update({
       'uid': user.uid,
