@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_app/login.dart';
+import 'package:flutter_app/Leaderboard.dart';
 import 'package:flutter_app/Profile.dart';
 
 
@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
               MyProfilePage()
               ,
-              myLoginPage()
+              MyLeaderboardPage()
               ,
               new Container(
                 color: Colors.lightGreen,
