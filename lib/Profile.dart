@@ -5,7 +5,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:password/password.dart';
-
+import 'package:pedometer/pedometer.dart';
+import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MyProfilePage extends StatefulWidget {
@@ -25,6 +26,9 @@ class MyProfilePageState extends State<MyProfilePage> {
   var imageBytes;
   Uint8List bytes;
   Uint8List image64;
+  Pedometer _pedometer;
+  StreamSubscription<int> _subscription;
+  String _stepCountValue = "";
   getUser() async {
     //getting token
     final prefs = await SharedPreferences.getInstance();
@@ -48,11 +52,34 @@ class MyProfilePageState extends State<MyProfilePage> {
       print("error" + err);
     }
   }
+  void _onDone() => print("Finished pedometer tracking");
+
+  void _onError(error) => print("Flutter Pedometer Error: $error");
+
+  void startListening() {
+    _pedometer = new Pedometer();
+    _subscription = _pedometer.pedometerStream.listen(_onData,
+        onError: _onError, onDone: _onDone, cancelOnError: true);
+  }
+
+  void onData(String stepCountValue) {
+    print(stepCountValue);
+  }
+
+  void stopListening() {
+    _subscription.cancel();
+  }
+
+  void _onData(int stepCountValue) async {
+    setState(() => _stepCountValue = "$stepCountValue");
+    print(_stepCountValue);
+  }
 
   void initState() {
     super.initState();
     setEnv();
     getUser();
+    startListening();
   }
 
   Future setEnv() async {
@@ -101,7 +128,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                           ),
                         ),
                       new Text(
-                        "1200 steps",
+                        _stepCountValue,
                         textScaleFactor: 1.5,
                       )
                     ],

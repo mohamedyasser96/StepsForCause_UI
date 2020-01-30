@@ -25,6 +25,7 @@ dependencies:
   dotenv: ^2.0.0
   password: ^1.0.0
   image_picker: ^0.6.3+1
+  pedometer: ^1.0.0
   shared_preferences: 0.5.6+1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
