@@ -33,9 +33,9 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future setEnv() async {
-    await DotEnv().load('.env');
-    port = DotEnv().env['PORT'];
-    ip = DotEnv().env['SERVER_IP'];
+    // await DotEnv().load('.env');
+    // port = DotEnv().env['PORT'];
+    // ip = DotEnv().env['SERVER_IP'];
   }
 
   @override

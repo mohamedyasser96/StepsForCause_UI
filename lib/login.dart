@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/services/user.dart';
 import 'package:password/password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class myLoginPage extends StatefulWidget {
   myLoginPage({Key key, this.title}) : super(key: key);
@@ -25,9 +25,9 @@ class myLoginPageState extends State<myLoginPage> {
   }
 
   Future setEnv() async {
-    await DotEnv().load('.env');
-    port = DotEnv().env['PORT'];
-    ip = DotEnv().env['SERVER_IP'];
+    // await DotEnv().load('.env');
+    // port = DotEnv().env['PORT'];
+    // ip = DotEnv().env['SERVER_IP'];
   }
 
   final unController = TextEditingController();

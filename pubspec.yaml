@@ -65,7 +65,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - logo.png
-    - .env
+    # - .env
 
   fonts:
     - family: Montserrat
