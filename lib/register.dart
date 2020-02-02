@@ -179,6 +179,9 @@ class _RegisterPageState extends State<RegisterPage> {
           "Verification", "Please confirm your email address and login.");
     } catch (e) {
       print(e);
+      _showDialog(
+          "Failed", "Failed to register user, please try again.");
+
     }
   }
 

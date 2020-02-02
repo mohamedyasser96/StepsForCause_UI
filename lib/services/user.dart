@@ -105,6 +105,18 @@ class UserService {
     });
   }
 
+  Future<void> updateStepCount(FirebaseUser user, int count){
+    if(user != null){
+      DatabaseReference ref = _db.reference().child("users").child(user.uid);
+      return ref.update({
+        'stepCount': count
+      });
+    }
+    else
+      return null;
+
+  }
+
   void signOut() {
     _auth.signOut();
   }

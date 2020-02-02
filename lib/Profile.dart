@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:pedometer/pedometer.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_app/services/user.dart';
+import 'package:provider/provider.dart';
 
 class MyProfilePage extends StatefulWidget {
   MyProfilePage({Key key, this.title}) : super(key: key);
@@ -23,7 +26,7 @@ class MyProfilePageState extends State<MyProfilePage> {
   Uint8List image64;
   Pedometer _pedometer;
   StreamSubscription<int> _subscription;
-  String _stepCountValue = "";
+  String _stepCountValue = "0";
 
   void _onDone() => print("Finished pedometer tracking");
 
@@ -45,12 +48,12 @@ class MyProfilePageState extends State<MyProfilePage> {
 
   void _onData(int stepCountValue) async {
     setState(() => _stepCountValue = "$stepCountValue");
+//
     print(_stepCountValue);
   }
 
   void initState() {
     super.initState();
-    setEnv();
     startListening();
   }
 
@@ -63,6 +66,8 @@ class MyProfilePageState extends State<MyProfilePage> {
 
 //  @override
   Widget build(BuildContext context) {
+    final user = Provider.of<FirebaseUser>(context);
+    userService.updateStepCount(user, int.parse(_stepCountValue));
     return Scaffold(
       body: Center(
         child: Container(
