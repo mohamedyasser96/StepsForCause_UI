@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/home.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'dart:typed_data';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:password/password.dart';
 import 'package:pedometer/pedometer.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -29,29 +24,7 @@ class MyProfilePageState extends State<MyProfilePage> {
   Pedometer _pedometer;
   StreamSubscription<int> _subscription;
   String _stepCountValue = "";
-  getUser() async {
-    //getting token
-    final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token') ?? null;
-    var url = 'http://' + ip + ':' + port + '/users/user';
-    print(url);
-    try {
-      var response = await http.get(url, headers: {
-        "Content-Type": "application/json",
-        'Authorization': 'Bearer $token'
-      });
 
-      imageBytes = json.decode(response.body)['user']["image"];
-      final UriData data = Uri.parse(imageBytes).data;
-      print(data.isBase64);
-      bytes = data.contentAsBytes();
-      setState(() {
-        image64 = bytes;
-      });
-    } catch (err) {
-      print("error" + err);
-    }
-  }
   void _onDone() => print("Finished pedometer tracking");
 
   void _onError(error) => print("Flutter Pedometer Error: $error");
@@ -78,7 +51,6 @@ class MyProfilePageState extends State<MyProfilePage> {
   void initState() {
     super.initState();
     setEnv();
-    getUser();
     startListening();
   }
 
@@ -87,15 +59,11 @@ class MyProfilePageState extends State<MyProfilePage> {
     await DotEnv().load('.env');
     port = DotEnv().env['PORT'];
     ip = DotEnv().env['SERVER_IP'];
-
   }
 
 //  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new AppBar(
-        title: new Text("Profile"),
-      ),
       body: Center(
         child: Container(
           color: Colors.white,

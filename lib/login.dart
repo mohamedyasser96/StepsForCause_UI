@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/home.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:flutter_app/services/user.dart';
 import 'package:password/password.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class myLoginPage extends StatefulWidget {
   myLoginPage({Key key, this.title}) : super(key: key);
@@ -18,29 +15,24 @@ class myLoginPage extends StatefulWidget {
 class myLoginPageState extends State<myLoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
-
   String token;
   var ip;
   var port;
 
-  void initState(){
+  void initState() {
     super.initState();
     setEnv();
-
   }
 
   Future setEnv() async {
-    await DotEnv().load('.env');
-    port = DotEnv().env['PORT'];
-    ip = DotEnv().env['SERVER_IP'];
-
+    // await DotEnv().load('.env');
+    // port = DotEnv().env['PORT'];
+    // ip = DotEnv().env['SERVER_IP'];
   }
 
   final unController = TextEditingController();
   final pwController = TextEditingController();
   final algorithm = PBKDF2();
-
-
 
   @override
   void dispose() {
@@ -50,7 +42,7 @@ class myLoginPageState extends State<myLoginPage> {
     super.dispose();
   }
 
-  String hashPassword(pw){
+  String hashPassword(pw) {
     final hash = Password.hash(pw, algorithm);
     return hash;
   }
@@ -133,46 +125,30 @@ class myLoginPageState extends State<myLoginPage> {
   void setToken(t) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('token', t);
-
   }
 
   void login(email, pw) async {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
-    token = null;
-    var url = 'http://' + ip + ':' + port + '/users/login';
-    print(url);
-    final msg =
-        jsonEncode({'email': email, 'password': hashPassword(pw)});
-    var response = await http.post(url,
-        headers: {"Content-Type": "application/json"}, body: msg);
-    print(msg);
-    print(response.statusCode);
-    if(response.statusCode == 200)
-      token = json.decode(response.body)['token'];
-
-    if(token != null){
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => MyHomePage()),
-      );
-      setToken(token);
+    try {
+      var u = await userService.signInWithEmailandPassword(email, pw);
+      if (!u.isEmailVerified)
+        _showDialog("Verification", "Please verify your email first.");
+      else
+        Navigator.pop(context);
+    } catch (e) {
+      _showDialog("Incorrect!", "Email or Password is incorrect!");
     }
-    else
-      _showDialog(json.decode(response.body)['error']);
-
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
   }
 
-  void _showDialog(err) {
+  void _showDialog(head, err) {
     // flutter defined function
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Incorrect!"),
+          title: new Text(head),
           content: new Text(err),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog

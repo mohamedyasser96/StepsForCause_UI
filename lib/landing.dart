@@ -2,20 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/login.dart';
 import 'package:flutter_app/register.dart';
 
-class myLandingPage extends StatefulWidget {
-  myLandingPage({Key key, this.title}) : super(key: key);
-  final String title;
-  // This widget is the root of your application.
-  @override
-  _myLandingPageState createState() => _myLandingPageState();
-}
-class _myLandingPageState extends State<myLandingPage> {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+class MyLandingPage extends StatelessWidget {
+  final style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   @override
   Widget build(BuildContext context) {
-
-
     final loginButton = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
@@ -25,10 +16,10 @@ class _myLandingPageState extends State<myLandingPage> {
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
           Navigator.push(
-          context,
+            context,
             MaterialPageRoute(builder: (context) => myLoginPage()),
-        );
-          },
+          );
+        },
         child: Text("Login",
             textAlign: TextAlign.center,
             style: style.copyWith(
@@ -45,7 +36,7 @@ class _myLandingPageState extends State<myLandingPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => myRegisterPage()),
+            MaterialPageRoute(builder: (context) => RegisterPage()),
           );
         },
         child: Text("Register",

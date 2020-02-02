@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/verification.dart';
+import 'package:flutter_app/services/user.dart';
 import 'dart:io';
 import 'dart:async';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:password/password.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
-class myRegisterPage extends StatefulWidget {
-  myRegisterPage({Key key, this.title}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  RegisterPage({Key key, this.title}) : super(key: key);
   final String title;
 
   // This widget is the root of your application.
   @override
-  _myRegisterPageState createState() => _myRegisterPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
-class _myRegisterPageState extends State<myRegisterPage> {
+
+class _RegisterPageState extends State<RegisterPage> {
   final fnController = TextEditingController();
   final lnController = TextEditingController();
   final emController = TextEditingController();
@@ -25,20 +24,18 @@ class _myRegisterPageState extends State<myRegisterPage> {
   final algorithm = PBKDF2();
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   File _image;
-  String _base64Image;
   var ip;
   var port;
 
-  void initState(){
+  void initState() {
     super.initState();
     setEnv();
-
   }
 
   Future setEnv() async {
-    await DotEnv().load('.env');
-    port = DotEnv().env['PORT'];
-    ip = DotEnv().env['SERVER_IP'];
+    // await DotEnv().load('.env');
+    // port = DotEnv().env['PORT'];
+    // ip = DotEnv().env['SERVER_IP'];
   }
 
   @override
@@ -51,17 +48,12 @@ class _myRegisterPageState extends State<myRegisterPage> {
     super.dispose();
   }
 
-  String hashPassword(){
-    final hash = Password.hash(pwController.text, algorithm);
-    return hash;
-  }
   @override
   Widget build(BuildContext context) {
     final floating = FloatingActionButton(
         onPressed: getImage,
         tooltip: 'Pick Image',
-        child: Icon(Icons.add_a_photo)
-    );
+        child: Icon(Icons.add_a_photo));
     final firstNameField = TextField(
       controller: fnController,
       obscureText: false,
@@ -70,7 +62,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "First Name",
           border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
     final lastNameField = TextField(
       controller: lnController,
@@ -80,7 +72,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Last Name",
           border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
     final emailField = TextField(
       controller: emController,
@@ -90,7 +82,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Email",
           border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
     final passwordField = TextField(
       controller: pwController,
@@ -100,7 +92,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Password",
           border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
     );
     final registerButton = Material(
       elevation: 5.0,
@@ -111,8 +103,7 @@ class _myRegisterPageState extends State<myRegisterPage> {
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
           register();
-
-          },
+        },
         child: Text("Register",
             textAlign: TextAlign.center,
             style: style.copyWith(
@@ -127,46 +118,43 @@ class _myRegisterPageState extends State<myRegisterPage> {
           child: Padding(
             padding: const EdgeInsets.all(36.0),
             child: Column(
-              children:
-                <Widget>[
-                  (_image == null ? Text('No image selected.') : Image.file(_image)),
-                  SizedBox(height: 10.0),
-                  floating,
-                  SizedBox(height: 20.0),
-                  firstNameField,
-                  SizedBox(height: 20.0),
-                  lastNameField,
-                  SizedBox(height: 20.0),
-                  emailField,
-                  SizedBox(height: 20.0),
-                  passwordField,
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  registerButton,
-                  SizedBox(
-                    height: 15.0,
-                  ),
-
-                ],
+              children: <Widget>[
+                (_image == null
+                    ? Text('No image selected.')
+                    : Image.file(_image)),
+                SizedBox(height: 10.0),
+                floating,
+                SizedBox(height: 20.0),
+                firstNameField,
+                SizedBox(height: 20.0),
+                lastNameField,
+                SizedBox(height: 20.0),
+                emailField,
+                SizedBox(height: 20.0),
+                passwordField,
+                SizedBox(
+                  height: 20.0,
+                ),
+                registerButton,
+                SizedBox(
+                  height: 15.0,
+                ),
+              ],
 //                 floatingActionButton: FloatingActionButton(
 //                  onPressed: getImage,
 //                  tooltip: 'Pick Image',
 //                  child: Icon(Icons.add_a_photo),
 //                ),
 
-
-
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
-
-
             ),
           ),
         ),
       ),
     );
   }
+
   Future getImage() async {
     var image = await ImagePicker.pickImage(
       source: ImageSource.gallery,
@@ -174,29 +162,47 @@ class _myRegisterPageState extends State<myRegisterPage> {
       maxWidth: 240.0,
     );
 
-    var base64Image = image != null ? 'data:image/png;base64,' +
-        base64Encode(image.readAsBytesSync()) : '';
+    var base64Image = image != null
+        ? 'data:image/png;base64,' + base64Encode(image.readAsBytesSync())
+        : '';
 
     setState(() {
       _image = image;
-      _base64Image = base64Image;
     });
   }
-  void register()async {
-    var url = 'http://' + ip + ':' + port +'/users';
-    final msg = jsonEncode({'firstName':fnController.text,
-      'lastName':lnController.text, 'email': emController.text,
-      'password': hashPassword(), 'image': _base64Image});
-    var response = await http.post(url,
-        headers: {"Content-Type": "application/json"}, body: msg);
-    print(msg);
-    if(response.statusCode == 200)
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => myVerificationPage(email: emController.text)),
-        );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+  void register() async {
+    try {
+      await userService.signUpWithEmailAndPassword(emController.text,
+          fnController.text + " " + lnController.text, pwController.text);
+      _showDialog(
+          "Verification", "Please confirm your email address and login.");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _showDialog(head, txt) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(head),
+          content: new Text(txt),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
