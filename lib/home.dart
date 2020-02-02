@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/services/user.dart';
 import 'package:flutter_app/widgets/index.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_app/Leaderboard.dart';
 import 'package:flutter_app/Profile.dart';
-
-import 'leaderboard.dart';
 
 class MyHomePage extends StatelessWidget {
   @override

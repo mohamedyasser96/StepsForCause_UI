@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
+import 'package:pedometer/pedometer.dart';
+import 'dart:async';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MyProfilePage extends StatefulWidget {
   MyProfilePage({Key key, this.title}) : super(key: key);
@@ -18,16 +21,49 @@ class MyProfilePageState extends State<MyProfilePage> {
   var imageBytes;
   Uint8List bytes;
   Uint8List image64;
-  getUser() async {}
+  Pedometer _pedometer;
+  StreamSubscription<int> _subscription;
+  String _stepCountValue = "";
+
+  void _onDone() => print("Finished pedometer tracking");
+
+  void _onError(error) => print("Flutter Pedometer Error: $error");
+
+  void startListening() {
+    _pedometer = new Pedometer();
+    _subscription = _pedometer.pedometerStream.listen(_onData,
+        onError: _onError, onDone: _onDone, cancelOnError: true);
+  }
+
+  void onData(String stepCountValue) {
+    print(stepCountValue);
+  }
+
+  void stopListening() {
+    _subscription.cancel();
+  }
+
+  void _onData(int stepCountValue) async {
+    setState(() => _stepCountValue = "$stepCountValue");
+    print(_stepCountValue);
+  }
 
   void initState() {
     super.initState();
+    setEnv();
+    startListening();
+  }
+
+  Future setEnv() async {
+    //getting env values
+    await DotEnv().load('.env');
+    port = DotEnv().env['PORT'];
+    ip = DotEnv().env['SERVER_IP'];
   }
 
 //  @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Center(
         child: Container(
           color: Colors.white,
@@ -60,7 +96,7 @@ class MyProfilePageState extends State<MyProfilePage> {
                           ),
                         ),
                       new Text(
-                        "1200 steps",
+                        _stepCountValue,
                         textScaleFactor: 1.5,
                       )
                     ],
