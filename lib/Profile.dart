@@ -5,12 +5,12 @@ import 'package:provider/provider.dart';
 
 class MyProfilePage extends StatelessWidget {
   final style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
-  final stepsService = StepsService.instance();
   final start = true;
 
 //  @override
   Widget build(BuildContext context) {
     final userService = Provider.of<UserService>(context);
+    StepsService(userService: userService);
     return Scaffold(
       body: Center(
         child: Container(

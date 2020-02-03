@@ -8,16 +8,14 @@ class StepsService {
   Pedometer _pedometer;
   StreamSubscription _subscription;
   FirebaseDatabase _db;
-  UserService _userService;
-  StepsService.instance()
-      : _pedometer = Pedometer(),
-        _userService = UserService.instance() {
+  final UserService userService;
+  StepsService({this.userService}) : _pedometer = Pedometer() {
     _subscription = _pedometer.pedometerStream
         .listen(_onData, onError: _onError, cancelOnError: true);
   }
   void _onError(error) => print("Flutter Pedometer Error: $error");
   void _onData(int steps) {
-    _userService.incrementStepCount(steps);
+    userService.incrementStepCount(steps);
   }
 
   void dispose() {

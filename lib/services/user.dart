@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/widgets.dart';
@@ -38,22 +37,20 @@ class UserService with ChangeNotifier {
   Profile get user => _profile;
   StreamSubscription _subscription;
 
-  PublishSubject loading = PublishSubject();
   UserService.instance()
       : _auth = FirebaseAuth.instance,
         _db = FirebaseDatabase.instance {
     _subscription =
         _auth.onAuthStateChanged.doOnData(_onAuthStateChanged).switchMap((u) {
       return _db.reference().child("users").child(u.uid).onValue.map((change) {
-        notifyListeners();
-
-        return Profile.fromMap(change.snapshot.value);
+        final profile = Profile.fromMap(change.snapshot.value);
+        if (u.isEmailVerified && profile != null) {
+          _profile = profile;
+          _status = AuthStatus.authenticated;
+          notifyListeners();
+        }
       });
-    }).listen((p) {
-      _profile = p;
-      _status = AuthStatus.authenticated;
-      notifyListeners();
-    });
+    }).listen((_) {});
   }
 
   Future<void> _onAuthStateChanged(FirebaseUser u) async {
@@ -71,7 +68,6 @@ class UserService with ChangeNotifier {
   Future<FirebaseUser> signInWithEmailandPassword(
       String email, String password) async {
     // Start
-    loading.add(true);
 
     // Step 2
     FirebaseUser user = (await _auth.signInWithEmailAndPassword(
@@ -79,28 +75,22 @@ class UserService with ChangeNotifier {
         .user;
 
     // Done
-    loading.add(false);
-    // notifyListeners();
+
     print("signed in " + user.email);
     return user;
   }
 
   Future<void> signUpWithEmailAndPassword(
       String email, String name, String password) async {
-    loading.add(true);
     FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
             email: email, password: password))
         .user;
     await _onSignUp(user, name);
-    loading.add(false);
-
-    user.sendEmailVerification();
+    await user.sendEmailVerification();
   }
 
   Future<void> _onSignUp(FirebaseUser user, String name) async {
     DatabaseReference ref = _db.reference().child("users").child(user.uid);
-
-    var rng = new Random();
 
     return ref.update({
       'uid': user.uid,
@@ -119,12 +109,27 @@ class UserService with ChangeNotifier {
       return null;
   }
 
-  void signOut() {
-    _auth.signOut();
+  Future<void> signOut() {
+    return _auth.signOut();
   }
 
   void dispose() {
     super.dispose();
     _subscription.cancel();
+  }
+
+  Future<AuthStatus> isCurrentUserVerified() async {
+    FirebaseUser user = await _auth.currentUser();
+    user.reload();
+    if (user == null) {
+      return AuthStatus.unauthenticated;
+    } else if (user.isEmailVerified == false) {
+      return AuthStatus.unverified;
+    } else if (user.isEmailVerified && _profile != null) {
+      print(_profile.email);
+      print(user.isEmailVerified);
+      return AuthStatus.authenticated;
+    }
+    // return AuthStatus.undeterminate;
   }
 }
