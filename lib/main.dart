@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/home.dart';
 import 'package:flutter_app/landing.dart';
@@ -8,25 +7,21 @@ import 'package:provider/provider.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          // Make user stream available
-          StreamProvider<AuthStatus>.value(value: userService.status),
-
-          // See implementation details in next sections
-          StreamProvider<FirebaseUser>.value(value: userService.user)
-        ],
-
-        // All data will be available in this child and descendents
-        child: MaterialApp(home: StartupWidget()));
+    return ChangeNotifierProvider<UserService>(
+      create: (context) => UserService.instance(),
+      child: MaterialApp(
+          home: Consumer<UserService>(builder: (context, userService, __) {
+        return StartupWidget();
+      })),
+    );
   }
 }
 
 class StartupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final status = Provider.of<AuthStatus>(context);
-    switch (status) {
+    final userService = Provider.of<UserService>(context);
+    switch (userService.status) {
       case AuthStatus.authenticated:
         return MyHomePage();
         break;

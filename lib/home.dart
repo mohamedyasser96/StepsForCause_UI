@@ -8,7 +8,7 @@ import 'package:flutter_app/Profile.dart';
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final status = Provider.of<AuthStatus>(context);
+    final userService = Provider.of<UserService>(context);
     return DefaultTabController(
       length: 3,
       child: new AppScaffold(
@@ -21,7 +21,7 @@ class MyHomePage extends StatelessWidget {
               child: Center(
                 child: MaterialButton(
                   color: Colors.blueGrey,
-                  child: Text(status.index.toString()),
+                  child: Text(userService.status.index.toString()),
                   onPressed: () => userService.signOut(),
                 ),
               ),

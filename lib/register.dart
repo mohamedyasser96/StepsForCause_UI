@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:password/password.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key, this.title}) : super(key: key);
@@ -102,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
-          register();
+          register(context);
         },
         child: Text("Register",
             textAlign: TextAlign.center,
@@ -171,17 +171,17 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  void register() async {
+  void register(BuildContext context) async {
     try {
+      final userService = Provider.of<UserService>(context, listen: false);
+
       await userService.signUpWithEmailAndPassword(emController.text,
           fnController.text + " " + lnController.text, pwController.text);
       _showDialog(
           "Verification", "Please confirm your email address and login.");
     } catch (e) {
       print(e);
-      _showDialog(
-          "Failed", "Failed to register user, please try again.");
-
+      _showDialog("Failed", "Failed to register user, please try again.");
     }
   }
 

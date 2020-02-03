@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/services/user.dart';
 import 'package:password/password.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -130,6 +131,8 @@ class myLoginPageState extends State<myLoginPage> {
   void login(email, pw) async {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
+    final userService = Provider.of<UserService>(context, listen: false);
+
     try {
       var u = await userService.signInWithEmailandPassword(email, pw);
       if (!u.isEmailVerified)
