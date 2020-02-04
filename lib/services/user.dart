@@ -53,12 +53,9 @@ class UserService with ChangeNotifier {
         _auth.onAuthStateChanged.doOnData(_onAuthStateChanged).switchMap((u) {
       return _db.reference().child("users").child(u.uid).onValue.map((change) {
         final profile = Profile.fromMap(change.snapshot.value);
-        print(profile.toString());
-        print(change.snapshot.value.toString());
         _profile = profile;
         _profile.mapToProfile(Map<String, dynamic>.from(change.snapshot.value));
         if (u.isEmailVerified && profile != null) {
-//          _profile = profile;
           _status = AuthStatus.authenticated;
           notifyListeners();
         }

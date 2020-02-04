@@ -40,3 +40,6 @@ lib/generated_plugin_registrant.dart
 
 #env
 .env
+
+ios/Runner.xcodeproj/project.pbxproj
+ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
