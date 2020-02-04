@@ -40,3 +40,5 @@ lib/generated_plugin_registrant.dart
 
 #env
 .env
+.vscode/launch.json
+ios/Runner.xcodeproj/project.pbxproj
