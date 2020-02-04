@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/user.dart';
+import 'package:Steps4Cause/services/user.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -117,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
           color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(36.0),
-            child: Column(
+            child: ListView(
               children: <Widget>[
                 (_image == null
                     ? Text('No image selected.')
@@ -146,8 +146,8 @@ class _RegisterPageState extends State<RegisterPage> {
 //                  child: Icon(Icons.add_a_photo),
 //                ),
 
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              // mainAxisAlignment: MainAxisAlignment.center,
             ),
           ),
         ),

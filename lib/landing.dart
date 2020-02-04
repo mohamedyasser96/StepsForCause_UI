@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/login.dart';
-import 'package:flutter_app/register.dart';
+import 'package:Steps4Cause/login.dart';
+import 'package:Steps4Cause/register.dart';
 
 class MyLandingPage extends StatelessWidget {
   final style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/home.dart';
-import 'package:flutter_app/landing.dart';
-import 'package:flutter_app/services/user.dart';
+import 'package:Steps4Cause/home.dart';
+import 'package:Steps4Cause/landing.dart';
+import 'package:Steps4Cause/services/user.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {

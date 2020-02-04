@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/leaderboard.dart';
+import 'package:Steps4Cause/services/leaderboard.dart';
 import 'package:provider/provider.dart';
-
 
 class MyLeaderboardPage extends StatelessWidget {
   @override
