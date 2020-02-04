@@ -21,15 +21,22 @@ class StartupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userService = Provider.of<UserService>(context);
-    switch (userService.status) {
-      case AuthStatus.authenticated:
-        return MyHomePage();
-        break;
-      case AuthStatus.undeterminate:
-        return LoadingWidget();
-      default:
-        return MyLandingPage();
-    }
+    return new FutureBuilder(
+        future: userService.isCurrentUserVerified(),
+        initialData: AuthStatus.undeterminate,
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          print("ERROR " + snapshot.error.toString());
+          print("SNAPSHOT " + snapshot.data.toString());
+          switch (snapshot.data) {
+            case AuthStatus.authenticated:
+              return MyHomePage();
+              break;
+            case AuthStatus.undeterminate:
+              return LoadingWidget();
+            default:
+              return MyLandingPage();
+          }
+        });
   }
 }
 

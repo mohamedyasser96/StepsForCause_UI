@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/widgets.dart';
@@ -8,9 +9,10 @@ import 'package:rxdart/rxdart.dart';
 enum AuthStatus { undeterminate, authenticated, unauthenticated, unverified }
 
 class Profile {
-  final String name;
-  final String email;
-  final int stepCount;
+  String name;
+  String email;
+  int stepCount;
+  bool isloggedIn;
 
   Profile({this.name, this.stepCount, this.email});
 
@@ -20,6 +22,13 @@ class Profile {
         name: data['name'] ?? '',
         stepCount: data['stepCount'] ?? 0,
         email: data['email'] ?? '');
+  }
+
+  void mapToProfile(Map<String, dynamic> map) {
+    name = map.values.elementAt(3);
+    email = map.values.elementAt(0);
+    stepCount = map.values.elementAt(1);
+    isloggedIn = false;
   }
 }
 
@@ -44,8 +53,9 @@ class UserService with ChangeNotifier {
         _auth.onAuthStateChanged.doOnData(_onAuthStateChanged).switchMap((u) {
       return _db.reference().child("users").child(u.uid).onValue.map((change) {
         final profile = Profile.fromMap(change.snapshot.value);
+        _profile = profile;
+        _profile.mapToProfile(Map<String, dynamic>.from(change.snapshot.value));
         if (u.isEmailVerified && profile != null) {
-          _profile = profile;
           _status = AuthStatus.authenticated;
           notifyListeners();
         }
@@ -59,6 +69,8 @@ class UserService with ChangeNotifier {
       _status = AuthStatus.unauthenticated;
     } else if (u.isEmailVerified == false) {
       _status = AuthStatus.unverified;
+    } else {
+      _status = AuthStatus.undeterminate;
     }
     notifyListeners();
   }
@@ -77,6 +89,7 @@ class UserService with ChangeNotifier {
     // Done
 
     print("signed in " + user.email);
+    _profile.isloggedIn = true;
     return user;
   }
 
@@ -109,8 +122,8 @@ class UserService with ChangeNotifier {
       return null;
   }
 
-  Future<void> signOut() {
-    return _auth.signOut();
+  Future<void> signOut() async {
+    await _auth.signOut();
   }
 
   void dispose() {
@@ -120,16 +133,28 @@ class UserService with ChangeNotifier {
 
   Future<AuthStatus> isCurrentUserVerified() async {
     FirebaseUser user = await _auth.currentUser();
-    user.reload();
-    if (user == null) {
-      return AuthStatus.unauthenticated;
-    } else if (user.isEmailVerified == false) {
-      return AuthStatus.unverified;
-    } else if (user.isEmailVerified && _profile != null) {
-      print(_profile.email);
-      print(user.isEmailVerified);
-      return AuthStatus.authenticated;
+    try {
+      try {
+        user.reload();
+      } catch (Exception) {
+        print ("USER.RELOAD() EXCEPTION " + Exception.toString());
+        _status = AuthStatus.unauthenticated;
+      }
+      if (user == null) {
+        print("USER IS NULL");
+        _status = AuthStatus.unauthenticated;
+      } else if (!user.isEmailVerified) {
+        print("USER EMAIL NOT VERIFIED");
+        _status = AuthStatus.unverified;
+      } else if (user.isEmailVerified && _profile.isloggedIn) {
+        print("USER EMAIL VERIFIED");
+        _status = AuthStatus.authenticated;
+      }
+    } catch (Exception) {
+      print("EXCEPTION " + Exception.toString());
+      _status = AuthStatus.undeterminate;
     }
-    // return AuthStatus.undeterminate;
+    print("STATUS BEFORE RETURN " + _status.toString());
+    return _status;
   }
 }
