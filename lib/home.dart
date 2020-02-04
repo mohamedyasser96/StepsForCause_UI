@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/services/user.dart';
+import 'package:flutter_app/setting.dart';
 import 'package:flutter_app/widgets/index.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_app/leaderboard.dart';
@@ -16,16 +17,7 @@ class MyHomePage extends StatelessWidget {
           children: [
             MyProfilePage(),
             MyLeaderboardPage(),
-            new Container(
-              color: Colors.lightGreen,
-              child: Center(
-                child: MaterialButton(
-                  color: Colors.blueGrey,
-                  child: Text(userService.status.index.toString()),
-                  onPressed: () => userService.signOut(),
-                ),
-              ),
-            ),
+            SettingsPage(),
           ],
         ),
         bottomNavigationBar: new TabBar(
