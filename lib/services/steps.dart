@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter_app/services/user.dart';
+import 'package:Steps4Cause/services/user.dart';
 import 'package:pedometer/pedometer.dart';
 
 class StepsService {

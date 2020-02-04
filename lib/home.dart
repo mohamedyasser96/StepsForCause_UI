@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/user.dart';
-import 'package:flutter_app/setting.dart';
-import 'package:flutter_app/widgets/index.dart';
+import 'package:Steps4Cause/services/user.dart';
+import 'package:Steps4Cause/setting.dart';
+import 'package:Steps4Cause/widgets/index.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app/leaderboard.dart';
-import 'package:flutter_app/Profile.dart';
+import 'package:Steps4Cause/leaderboard.dart';
+import 'package:Steps4Cause/Profile.dart';
 
 class MyHomePage extends StatelessWidget {
   @override
