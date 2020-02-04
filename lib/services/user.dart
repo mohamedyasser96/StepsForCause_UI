@@ -30,13 +30,6 @@ class Profile {
     stepCount = map.values.elementAt(1);
     isloggedIn = false;
   }
-
-  void clear() {
-    name = null;
-    email = null;
-    stepCount = null;
-    isloggedIn = null;
-  }
 }
 
 class UserService with ChangeNotifier {
@@ -134,7 +127,6 @@ class UserService with ChangeNotifier {
 
   Future<void> signOut() async {
     await _auth.signOut();
-//    _profile.clear();
   }
 
   void dispose() {
