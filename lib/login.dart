@@ -14,7 +14,8 @@ class myLoginPage extends StatefulWidget {
 }
 
 class myLoginPageState extends State<myLoginPage> {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  TextStyle style =
+      TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
 
   String token;
   var ip;
@@ -56,9 +57,11 @@ class myLoginPageState extends State<myLoginPage> {
       style: style,
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
           hintText: "Email",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final passwordField = TextField(
       controller: pwController,
@@ -67,8 +70,10 @@ class myLoginPageState extends State<myLoginPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Password",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final loginButton = Material(
       elevation: 5.0,
@@ -90,34 +95,31 @@ class myLoginPageState extends State<myLoginPage> {
     return Scaffold(
       body: Center(
         child: Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(36.0),
-//            crossAxisAlignment: CrossAxisAlignment.center,
-//            mainAxisAlignment: MainAxisAlignment.center,
-            child: ListView(
-              children: <Widget>[
-                SizedBox(
-                  height: 155.0,
-                  child: Image.asset(
-                    "assets/logo.png",
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                SizedBox(height: 45.0),
-                emailField,
-                SizedBox(height: 25.0),
-                passwordField,
-                SizedBox(
-                  height: 35.0,
-                ),
-                loginButton,
-                SizedBox(
-                  height: 15.0,
-                ),
-              ],
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/background.jpeg"),
+              fit: BoxFit.cover,
             ),
           ),
+          child: Padding(
+              padding: const EdgeInsets.all(36.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: 45.0),
+                  emailField,
+                  SizedBox(height: 25.0),
+                  passwordField,
+                  SizedBox(
+                    height: 35.0,
+                  ),
+                  loginButton,
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                ],
+              )),
         ),
       ),
     );

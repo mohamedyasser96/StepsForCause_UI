@@ -22,7 +22,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final emController = TextEditingController();
   final pwController = TextEditingController();
   final algorithm = PBKDF2();
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  TextStyle style =
+      TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
   File _image;
   var ip;
   var port;
@@ -61,8 +62,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "First Name",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final lastNameField = TextField(
       controller: lnController,
@@ -71,8 +74,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Last Name",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final emailField = TextField(
       controller: emController,
@@ -81,8 +86,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Email",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final passwordField = TextField(
       controller: pwController,
@@ -91,8 +98,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Password",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final registerButton = Material(
       elevation: 5.0,
@@ -114,7 +123,12 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       body: Center(
         child: Container(
-          color: Colors.white,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/background.jpeg"),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(36.0),
             child: ListView(

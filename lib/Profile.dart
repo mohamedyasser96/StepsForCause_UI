@@ -89,12 +89,12 @@ class ChoiceCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       new CircularPercentIndicator(
-                        radius: 60.0,
+                        radius: 120.0,
                         lineWidth: 5.0,
                         percent: 0.15,
                         center: new Text("15%"),
                         progressColor: Colors.green,
-                        header: new Text("Progress out of total"),
+                        header: new Text("Your contribution out of total"),
                       ),
                       myWidget(
                           userService.user.stepCount.toString() + " Steps"),
@@ -130,19 +130,7 @@ class ChoiceCard extends StatelessWidget {
         ),
       );
     } else
-      return Card(
-        color: Colors.white,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Icon(choice.icon, size: 128.0, color: textStyle.color),
-              Text(choice.title, style: textStyle),
-            ],
-          ),
-        ),
-      );
+      return Card(color: Colors.white, child: _myListView(context));
   }
 }
 
@@ -177,5 +165,66 @@ BoxDecoration myBoxDecoration() {
   return BoxDecoration(
     border: Border.all(),
     borderRadius: BorderRadius.circular(10.0),
+  );
+}
+
+Widget _myListView(BuildContext context) {
+  return ListView(
+    children: <Widget>[
+      ListTile(
+        leading: new CircularPercentIndicator(
+          radius: 50.0,
+          // lineWidth: 5.0,
+          percent: 0.096,
+          center: new Text("10%"),
+          progressColor: Colors.blue,
+        ),
+        title: Text('Mostafa Henna'),
+        subtitle: Text("81 Steps"),
+      ),
+      ListTile(
+        leading: new CircularPercentIndicator(
+          radius: 50.0,
+          // lineWidth: 5.0,
+          percent: 0.169,
+          center: new Text("17%"),
+          progressColor: Colors.blue,
+        ),
+        title: Text('Ahmed Osama'),
+        subtitle: Text("141 Steps"),
+      ),
+      ListTile(
+        leading: new CircularPercentIndicator(
+          radius: 50.0,
+          // lineWidth: 5.0,
+          percent: 0.21,
+          center: new Text("21%"),
+          progressColor: Colors.blue,
+        ),
+        title: Text('Omar Abdulaal'),
+        subtitle: Text("175 Steps"),
+      ),
+      ListTile(
+        leading: new CircularPercentIndicator(
+          radius: 50.0,
+          // lineWidth: 5.0,
+          percent: 0.526,
+          center: new Text("53%"),
+          progressColor: Colors.blue,
+        ),
+        title: Text('You'),
+        subtitle: Text('441 Steps'),
+      ),
+      Padding(
+          padding: const EdgeInsets.all(100.0),
+          child: CircularPercentIndicator(
+            radius: 100.0,
+            // lineWidth: 5.0,
+            percent: 0.23,
+            center: new Text("23%"),
+            progressColor: Colors.green,
+            header: Text("Team Total Contribution: 838 Steps"),
+          ))
+    ],
   );
 }

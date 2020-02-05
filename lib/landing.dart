@@ -161,13 +161,6 @@ class MyLandingPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(
-                  height: 155.0,
-                  child: Image.asset(
-                    "assets/logo.png",
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                SizedBox(
                   height: 35.0,
                 ),
                 loginButton,
@@ -178,9 +171,9 @@ class MyLandingPage extends StatelessWidget {
                 SizedBox(
                   height: 15.0,
                 ),
-                Padding (
+                Padding(
                   padding: const EdgeInsets.only(top: 100),
-                  child: Row (
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Padding(
