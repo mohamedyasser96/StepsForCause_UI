@@ -30,7 +30,7 @@ class MyHomePage extends StatelessWidget {
               icon: new Icon(Icons.score),
             ),
             Tab(
-              icon: new Icon(Icons.history),
+              icon: new Icon(Icons.settings),
             ),
           ],
           labelColor: Colors.yellow,

@@ -148,20 +148,18 @@ class MyLandingPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Container(
-          color: Colors.white,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/background.jpeg"),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(36.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SizedBox(
-                  height: 155.0,
-                  child: Image.asset(
-                    "assets/logo.png",
-                    fit: BoxFit.contain,
-                  ),
-                ),
                 SizedBox(
                   height: 35.0,
                 ),
@@ -173,9 +171,9 @@ class MyLandingPage extends StatelessWidget {
                 SizedBox(
                   height: 15.0,
                 ),
-                Padding (
+                Padding(
                   padding: const EdgeInsets.only(top: 100),
-                  child: Row (
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Padding(
