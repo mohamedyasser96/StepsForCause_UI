@@ -66,6 +66,8 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - logo.png
+    - fb.png
+    - google.png
     # - .env
 
   fonts:
