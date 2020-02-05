@@ -71,7 +71,8 @@ flutter:
     - logo.png
     - background.jpeg
     - user.jpg
-    - quotes.text
+    - fb.png
+    - google.png
     # - .env
 
   fonts:

@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/widgets.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum AuthStatus { undeterminate, authenticated, unauthenticated, unverified }
@@ -89,7 +87,11 @@ class UserService with ChangeNotifier {
     // Done
 
     print("signed in " + user.email);
-    _profile.isloggedIn = true;
+    try {
+      _profile.isloggedIn = true;
+    } catch (Exception) {
+      print ("EXCEPTION WHEN SETTING PROFILE.ISLOGGEDIN " + Exception.toString());
+    }
     return user;
   }
 
