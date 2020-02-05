@@ -49,7 +49,12 @@ class MyLandingPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Container(
-          color: Colors.white,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/background.jpeg"),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(36.0),
             child: Column(
