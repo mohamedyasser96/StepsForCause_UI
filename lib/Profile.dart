@@ -72,8 +72,8 @@ class ChoiceCard extends StatelessWidget {
       "“Running allows me to set my mind free. Nothing seems impossible. Nothing unattainable.” — Kara Goucher"
     ];
 
+    final userService = Provider.of<UserService>(context);
     if (choice.title == 'Individual') {
-      final userService = Provider.of<UserService>(context);
       StepsService(userService: userService);
 
       return Card(
@@ -169,62 +169,163 @@ BoxDecoration myBoxDecoration() {
 }
 
 Widget _myListView(BuildContext context) {
-  return ListView(
-    children: <Widget>[
-      ListTile(
-        leading: new CircularPercentIndicator(
-          radius: 50.0,
-          // lineWidth: 5.0,
-          percent: 0.096,
-          center: new Text("10%"),
-          progressColor: Colors.blue,
-        ),
-        title: Text('Mostafa Henna'),
-        subtitle: Text("81 Steps"),
-      ),
-      ListTile(
-        leading: new CircularPercentIndicator(
-          radius: 50.0,
-          // lineWidth: 5.0,
-          percent: 0.169,
-          center: new Text("17%"),
-          progressColor: Colors.blue,
-        ),
-        title: Text('Ahmed Osama'),
-        subtitle: Text("141 Steps"),
-      ),
-      ListTile(
-        leading: new CircularPercentIndicator(
-          radius: 50.0,
-          // lineWidth: 5.0,
-          percent: 0.21,
-          center: new Text("21%"),
-          progressColor: Colors.blue,
-        ),
-        title: Text('Omar Abdulaal'),
-        subtitle: Text("175 Steps"),
-      ),
-      ListTile(
-        leading: new CircularPercentIndicator(
-          radius: 50.0,
-          // lineWidth: 5.0,
-          percent: 0.526,
-          center: new Text("53%"),
-          progressColor: Colors.blue,
-        ),
-        title: Text('You'),
-        subtitle: Text('441 Steps'),
-      ),
-      Padding(
-          padding: const EdgeInsets.all(100.0),
-          child: CircularPercentIndicator(
-            radius: 100.0,
+  void _showDialog(head, txt) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(head),
+          content: new Text(txt),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  final userService = Provider.of<UserService>(context);
+  if (userService.user.team == '') {
+    TextStyle style = TextStyle(
+        fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.black);
+
+    final tnController = TextEditingController();
+    final teamNameField = TextField(
+      controller: tnController,
+      obscureText: false,
+      style: style,
+      decoration: InputDecoration(
+          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          hintText: "Team Name",
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.black),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.black))),
+    );
+    final registerButton = Material(
+        elevation: 5.0,
+        borderRadius: BorderRadius.circular(30.0),
+        color: Color(0xff01A0C7),
+        child: MaterialButton(
+          minWidth: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          onPressed: () {
+            try {
+              if (userService.addNewTeam(userService.user, tnController.text) !=
+                  null) {
+              } else {
+                throw ('taken');
+              }
+            } catch (err) {
+              _showDialog("Oops!",
+                  "Team Name already taken, are you sure you are not joining?");
+            }
+          },
+          child: Text("Register New Team",
+              textAlign: TextAlign.center,
+              style: style.copyWith(
+                  color: Colors.white, fontWeight: FontWeight.bold)),
+        ));
+    final joinButton = Material(
+        elevation: 5.0,
+        borderRadius: BorderRadius.circular(30.0),
+        color: Color(0xff01A0C7),
+        child: MaterialButton(
+          minWidth: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          onPressed: () {
+            try {
+              userService.addToExistingTeam(
+                  userService.user, tnController.text);
+            } catch (err) {
+              _showDialog("Oops!",
+                  "Team Name does not exist taken, are you sure you are not creating a new team?");
+            }
+          },
+          child: Text("Join Team",
+              textAlign: TextAlign.center,
+              style: style.copyWith(
+                  color: Colors.white, fontWeight: FontWeight.bold)),
+        ));
+
+    return Container(
+      child: Padding(
+          padding: const EdgeInsets.all(36.0),
+          child: ListView(children: <Widget>[
+            SizedBox(height: 20.0),
+            teamNameField,
+            SizedBox(height: 20.0),
+            registerButton,
+            SizedBox(height: 20.0),
+            joinButton,
+          ])),
+    );
+  } else
+    return ListView(
+      children: <Widget>[
+        ListTile(
+          leading: new CircularPercentIndicator(
+            radius: 50.0,
             // lineWidth: 5.0,
-            percent: 0.23,
-            center: new Text("23%"),
-            progressColor: Colors.green,
-            header: Text("Team Total Contribution: 838 Steps"),
-          ))
-    ],
-  );
+            percent: 0.096,
+            center: new Text("10%"),
+            progressColor: Colors.blue,
+          ),
+          title: Text('Mostafa Henna'),
+          subtitle: Text("81 Steps"),
+        ),
+        ListTile(
+          leading: new CircularPercentIndicator(
+            radius: 50.0,
+            // lineWidth: 5.0,
+            percent: 0.169,
+            center: new Text("17%"),
+            progressColor: Colors.blue,
+          ),
+          title: Text('Ahmed Osama'),
+          subtitle: Text("141 Steps"),
+        ),
+        ListTile(
+          leading: new CircularPercentIndicator(
+            radius: 50.0,
+            // lineWidth: 5.0,
+            percent: 0.21,
+            center: new Text("21%"),
+            progressColor: Colors.blue,
+          ),
+          title: Text('Omar Abdulaal'),
+          subtitle: Text("175 Steps"),
+        ),
+        ListTile(
+          leading: new CircularPercentIndicator(
+            radius: 50.0,
+            // lineWidth: 5.0,
+            percent: 0.526,
+            center: new Text("53%"),
+            progressColor: Colors.blue,
+          ),
+          title: Text('You'),
+          subtitle: Text('441 Steps'),
+        ),
+        Padding(
+            padding: const EdgeInsets.all(100.0),
+            child: CircularPercentIndicator(
+              radius: 100.0,
+              // lineWidth: 5.0,
+              percent: 0.23,
+              center: new Text("23%"),
+              progressColor: Colors.green,
+              header: Text("Team Total Contribution: 838 Steps"),
+            ))
+      ],
+    );
 }

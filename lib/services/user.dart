@@ -12,8 +12,9 @@ class Profile {
   int stepCount;
   bool isloggedIn;
   var photo;
+  String team;
 
-  Profile({this.name, this.stepCount, this.email, this.photo});
+  Profile({this.name, this.stepCount, this.email, this.photo, this.team});
 
   factory Profile.fromMap(Map data) {
     data = data ?? {};
@@ -21,7 +22,8 @@ class Profile {
         name: data['name'] ?? '',
         stepCount: data['stepCount'] ?? 0,
         email: data['email'] ?? '',
-        photo: data['photo'] ?? '');
+        photo: data['photo'] ?? '',
+        team: data['team'] ?? '');
   }
 
   void mapToProfile(Map<String, dynamic> map) {
@@ -31,6 +33,48 @@ class Profile {
     photo = map.values.elementAt(4);
     isloggedIn = false;
   }
+
+  Map toMap() {
+    Map toReturn = new Map();
+    toReturn['name'] = name;
+    toReturn['email'] = email;
+    toReturn['stepCount'] = stepCount;
+    return toReturn;
+  }
+}
+
+class Team {
+  final String name;
+  final List<Profile> users;
+  final int totalSteps;
+
+  Team({this.name, this.users, this.totalSteps});
+
+  factory Team.fromMap(Map data) {
+    data = data ?? {};
+    return Team(
+        name: data['name'] ?? '',
+        users: data['users'] ?? [],
+        totalSteps: data['totalSteps'] ?? 0);
+  }
+
+  // getTeams() {
+  //   teamList = _db
+  //       .reference()
+  //       .child("teams")
+  //       .onValue
+  //       .map((change) {
+  //     var v = Map<String, Map>.from(change.snapshot.value);
+  //     final List<TeamMember> datalist = [];
+  //     v.forEach((key, value) {
+  //       datalist.add(TeamMember.fromMap(value));
+  //     });
+  //     datalist.sort((a, b) => b.stepCount - a.stepCount);
+  //     print(datalist);
+  //     print(v);
+  //     return datalist;
+  //   });
+  // }
 }
 
 class UserService with ChangeNotifier {
@@ -42,6 +86,7 @@ class UserService with ChangeNotifier {
 
   Profile _profile; // custom user data in Firestore
   FirebaseUser _user; // custom user data in Firestore
+  var team;
   AuthStatus _status = AuthStatus.undeterminate;
   AuthStatus get status => _status;
   Profile get user => _profile;
@@ -129,6 +174,51 @@ class UserService with ChangeNotifier {
       return null;
   }
 
+  Future<void> getTeamByName(String name) async {
+    final exists = await _db
+        .reference()
+        .child('teams')
+        .reference()
+        .orderByChild("Name")
+        .equalTo(name)
+        .limitToLast(1)
+        .once();
+    if (exists.value != null) {
+      team = exists.value;
+    }
+  }
+
+  Future<bool> checkTeamName(String name) async {
+    bool flag = false;
+    getTeamByName(name);
+    if (team != null) flag = true;
+
+    return flag;
+  }
+
+  Future<void> addNewTeam(Profile p, String teamName) async {
+    bool flag = await checkTeamName(teamName);
+    var list = [];
+    list.add({'name': p.name, 'email': p.email, 'stepsCount': p.stepCount});
+    if (!flag && p != null) {
+      DatabaseReference ref = _db.reference().child("teams").push();
+      return ref.update(
+          {'teamName': teamName, 'users': list, 'totalSteps': p.stepCount});
+    } else
+      return null;
+  }
+
+  Future<void> addToExistingTeam(Profile p, String teamName) async {
+    await getTeamByName(teamName);
+    var tempList = new List.from(Map.from(team).values.toList()[0]['users']);
+    tempList.add({'name': p.name, 'email': p.email, 'stepsCount': p.stepCount});
+    print(tempList);
+    DatabaseReference ref =
+        _db.reference().child("teams").child(Map.from(team).keys.first);
+    return ref.update(
+        {'teamName': teamName, 'users': tempList, 'totalSteps': p.stepCount});
+  }
+
   Future<void> signOut() async {
     await _auth.signOut();
   }
@@ -144,24 +234,24 @@ class UserService with ChangeNotifier {
       try {
         user.reload();
       } catch (Exception) {
-        print("USER.RELOAD() EXCEPTION " + Exception.toString());
+        // print("USER.RELOAD() EXCEPTION " + Exception.toString());
         _status = AuthStatus.unauthenticated;
       }
       if (user == null) {
-        print("USER IS NULL");
+        // print("USER IS NULL");
         _status = AuthStatus.unauthenticated;
       } else if (!user.isEmailVerified) {
-        print("USER EMAIL NOT VERIFIED");
+        // print("USER EMAIL NOT VERIFIED");
         _status = AuthStatus.unverified;
       } else if (user.isEmailVerified && _profile.isloggedIn) {
-        print("USER EMAIL VERIFIED");
+        // print("USER EMAIL VERIFIED");
         _status = AuthStatus.authenticated;
       }
     } catch (Exception) {
-      print("EXCEPTION " + Exception.toString());
+      // print("EXCEPTION " + Exception.toString());
       _status = AuthStatus.undeterminate;
     }
-    print("STATUS BEFORE RETURN " + _status.toString());
+    // print("STATUS BEFORE RETURN " + _status.toString());
     return _status;
   }
 }
