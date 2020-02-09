@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/user.dart';
-import 'package:flutter_app/widgets/index.dart';
+import 'package:Steps4Cause/services/user.dart';
+import 'package:Steps4Cause/setting.dart';
+import 'package:Steps4Cause/widgets/index.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_app/leaderboard.dart';
-import 'package:flutter_app/Profile.dart';
+import 'package:Steps4Cause/leaderboard.dart';
+import 'package:Steps4Cause/Profile.dart';
 
 class MyHomePage extends StatelessWidget {
   @override
@@ -16,16 +17,7 @@ class MyHomePage extends StatelessWidget {
           children: [
             MyProfilePage(),
             MyLeaderboardPage(),
-            new Container(
-              color: Colors.lightGreen,
-              child: Center(
-                child: MaterialButton(
-                  color: Colors.blueGrey,
-                  child: Text(userService.status.index.toString()),
-                  onPressed: () => userService.signOut(),
-                ),
-              ),
-            ),
+            SettingsPage(),
           ],
         ),
         bottomNavigationBar: new TabBar(
@@ -38,7 +30,7 @@ class MyHomePage extends StatelessWidget {
               icon: new Icon(Icons.score),
             ),
             Tab(
-              icon: new Icon(Icons.history),
+              icon: new Icon(Icons.settings),
             ),
           ],
           labelColor: Colors.yellow,

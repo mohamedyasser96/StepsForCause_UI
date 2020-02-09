@@ -17,7 +17,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>flutter_app</string>
+	<string>Steps4Cause</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -33,9 +33,15 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Need to upload image</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Tracks user&apos;s motion</string>
+	<string>Tracks user's motion</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Need to upload image</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

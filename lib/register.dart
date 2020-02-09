@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/user.dart';
+import 'package:Steps4Cause/services/user.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -22,8 +22,10 @@ class _RegisterPageState extends State<RegisterPage> {
   final emController = TextEditingController();
   final pwController = TextEditingController();
   final algorithm = PBKDF2();
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  TextStyle style =
+      TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
   File _image;
+  var _base64image;
   var ip;
   var port;
 
@@ -61,8 +63,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "First Name",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final lastNameField = TextField(
       controller: lnController,
@@ -71,8 +75,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Last Name",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final emailField = TextField(
       controller: emController,
@@ -81,8 +87,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Email",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final passwordField = TextField(
       controller: pwController,
@@ -91,8 +99,10 @@ class _RegisterPageState extends State<RegisterPage> {
       decoration: InputDecoration(
           contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
           hintText: "Password",
-          border:
-              OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))),
+          hintStyle: TextStyle(fontSize: 20.0, color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(32.0),
+              borderSide: const BorderSide(color: Colors.white))),
     );
     final registerButton = Material(
       elevation: 5.0,
@@ -114,10 +124,15 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       body: Center(
         child: Container(
-          color: Colors.white,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/background.jpeg"),
+              fit: BoxFit.cover,
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(36.0),
-            child: Column(
+            child: ListView(
               children: <Widget>[
                 (_image == null
                     ? Text('No image selected.')
@@ -146,8 +161,8 @@ class _RegisterPageState extends State<RegisterPage> {
 //                  child: Icon(Icons.add_a_photo),
 //                ),
 
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              // mainAxisAlignment: MainAxisAlignment.center,
             ),
           ),
         ),
@@ -168,6 +183,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() {
       _image = image;
+      _base64image = base64Image;
     });
   }
 
@@ -175,8 +191,11 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final userService = Provider.of<UserService>(context, listen: false);
 
-      await userService.signUpWithEmailAndPassword(emController.text,
-          fnController.text + " " + lnController.text, pwController.text);
+      await userService.signUpWithEmailAndPassword(
+          emController.text,
+          fnController.text + " " + lnController.text,
+          pwController.text,
+          _base64image);
       _showDialog(
           "Verification", "Please confirm your email address and login.");
     } catch (e) {
