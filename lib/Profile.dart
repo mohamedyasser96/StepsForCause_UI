@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/services/steps.dart';
@@ -61,9 +61,17 @@ class ChoiceCard extends StatelessWidget {
 
   final Choice choice;
 
+  double roundDouble(double value) {
+    int places = 2;
+    double mod = pow(10.0, places);
+    return ((value * mod).round().toDouble() / mod);
+  }
+
   @override
   Widget build(BuildContext context) {
     final TextStyle textStyle = Theme.of(context).textTheme.display1;
+    final totalStepCount = Provider.of<int>(context);
+
     // getfile();
     final quotes = [
       '“The miracle isn’t that I finished. The miracle is that I had the courage to start.” – John Bingham',
@@ -72,7 +80,7 @@ class ChoiceCard extends StatelessWidget {
       "“Running allows me to set my mind free. Nothing seems impossible. Nothing unattainable.” — Kara Goucher"
     ];
 
-    if (choice.title == 'Individual') {
+    if (choice.title == 'Individual' && totalStepCount != null) {
       final userService = Provider.of<UserService>(context);
       StepsService(userService: userService);
 
@@ -91,8 +99,14 @@ class ChoiceCard extends StatelessWidget {
                       new CircularPercentIndicator(
                         radius: 120.0,
                         lineWidth: 5.0,
-                        percent: 0.15,
-                        center: new Text("15%"),
+                        percent: roundDouble(
+                            userService.user.stepCount / totalStepCount),
+                        center: new Text((roundDouble(
+                                    userService.user.stepCount /
+                                        totalStepCount) *
+                                100)
+                            .ceil()
+                            .toString()),
                         progressColor: Colors.green,
                         header: new Text("Your contribution out of total"),
                       ),
@@ -129,8 +143,11 @@ class ChoiceCard extends StatelessWidget {
           ),
         ),
       );
-    } else
-      return Card(color: Colors.white, child: _myListView(context));
+    } else if (totalStepCount != null)
+      return Card(
+          color: Colors.white, child: _myTeamView(context, totalStepCount));
+    else
+      return Container();
   }
 }
 
@@ -168,7 +185,7 @@ BoxDecoration myBoxDecoration() {
   );
 }
 
-Widget _myListView(BuildContext context) {
+Widget _myTeamView(BuildContext context, var totalStepCount) {
   return ListView(
     children: <Widget>[
       ListTile(

@@ -20,9 +20,21 @@ class Leaderboard {
         datalist.add(UserScore.fromMap(value));
       });
       datalist.sort((a, b) => b.stepCount - a.stepCount);
-      print(datalist);
-      print(v);
       return datalist;
+    });
+
+    totalStepCount = _db
+        .reference()
+        .child("users")
+        .orderByChild('stepCount')
+        .onValue
+        .map((change) {
+      var v = Map<String, Map>.from(change.snapshot.value);
+      int total = 0;
+      v.forEach((key, val) {
+        total += UserScore.fromMap(val).stepCount;
+      });
+      return total;
     });
   }
 }
