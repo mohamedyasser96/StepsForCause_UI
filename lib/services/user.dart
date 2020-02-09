@@ -11,15 +11,17 @@ class Profile {
   String email;
   int stepCount;
   bool isloggedIn;
+  var photo;
 
-  Profile({this.name, this.stepCount, this.email});
+  Profile({this.name, this.stepCount, this.email, this.photo});
 
   factory Profile.fromMap(Map data) {
     data = data ?? {};
     return Profile(
         name: data['name'] ?? '',
         stepCount: data['stepCount'] ?? 0,
-        email: data['email'] ?? '');
+        email: data['email'] ?? '',
+        photo: data['photo'] ?? '');
   }
 
   void mapToProfile(Map<String, dynamic> map) {
@@ -90,21 +92,22 @@ class UserService with ChangeNotifier {
     try {
       _profile.isloggedIn = true;
     } catch (Exception) {
-      print ("EXCEPTION WHEN SETTING PROFILE.ISLOGGEDIN " + Exception.toString());
+      print(
+          "EXCEPTION WHEN SETTING PROFILE.ISLOGGEDIN " + Exception.toString());
     }
     return user;
   }
 
   Future<void> signUpWithEmailAndPassword(
-      String email, String name, String password) async {
+      String email, String name, String password, var photo) async {
     FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
             email: email, password: password))
         .user;
-    await _onSignUp(user, name);
+    await _onSignUp(user, name, photo);
     await user.sendEmailVerification();
   }
 
-  Future<void> _onSignUp(FirebaseUser user, String name) async {
+  Future<void> _onSignUp(FirebaseUser user, String name, var photo) async {
     DatabaseReference ref = _db.reference().child("users").child(user.uid);
 
     return ref.update({
@@ -112,6 +115,7 @@ class UserService with ChangeNotifier {
       'email': user.email,
       'stepCount': 0,
       'name': name,
+      'photo': photo
     });
   }
 
@@ -139,7 +143,7 @@ class UserService with ChangeNotifier {
       try {
         user.reload();
       } catch (Exception) {
-        print ("USER.RELOAD() EXCEPTION " + Exception.toString());
+        print("USER.RELOAD() EXCEPTION " + Exception.toString());
         _status = AuthStatus.unauthenticated;
       }
       if (user == null) {

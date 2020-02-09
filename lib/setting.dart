@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:Steps4Cause/services/user.dart';
@@ -12,15 +14,30 @@ class MapScreenState extends State<SettingsPage>
     with SingleTickerProviderStateMixin {
   bool _status = true;
   final FocusNode myFocusNode = FocusNode();
+  var imageBytes;
+  Uint8List bytes;
+  Uint8List image64;
 
   @override
   void initState() {
     super.initState();
   }
 
+  void setAvatar(image) {
+    imageBytes = image;
+    final UriData data = Uri.parse(imageBytes).data;
+    print(data.isBase64);
+    bytes = data.contentAsBytes();
+    setState(() {
+      image64 = bytes;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userService = Provider.of<UserService>(context);
+    var avatar = userService.user.photo;
+    if (avatar != '') setAvatar(avatar);
     return new Scaffold(
         body: new Container(
       color: Colors.white,
@@ -52,17 +69,30 @@ class MapScreenState extends State<SettingsPage>
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            new Container(
-                                width: 140.0,
-                                height: 140.0,
-                                decoration: new BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: new DecorationImage(
-                                    image:
-                                        new ExactAssetImage('assets/user.jpg'),
-                                    fit: BoxFit.cover,
-                                  ),
-                                )),
+                            if (image64 != null)
+                              new Container(
+                                  width: 140.0,
+                                  height: 140.0,
+                                  decoration: new BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: new DecorationImage(
+                                      image: new MemoryImage(image64),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ))
+                            else
+                              new Container(
+                                  //empty image
+                                  width: 140.0,
+                                  height: 140.0,
+                                  decoration: new BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: new DecorationImage(
+                                      image: new ExactAssetImage(
+                                          'assets/logo.png'),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )),
                           ],
                         ),
                         Padding(
