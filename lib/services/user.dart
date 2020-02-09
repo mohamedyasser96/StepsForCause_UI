@@ -28,6 +28,7 @@ class Profile {
     name = map.values.elementAt(3);
     email = map.values.elementAt(0);
     stepCount = map.values.elementAt(1);
+    photo = map.values.elementAt(4);
     isloggedIn = false;
   }
 }
