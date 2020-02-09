@@ -25,6 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
   TextStyle style =
       TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
   File _image;
+  var _base64image;
   var ip;
   var port;
 
@@ -182,6 +183,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() {
       _image = image;
+      _base64image = base64Image;
     });
   }
 
@@ -189,8 +191,11 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final userService = Provider.of<UserService>(context, listen: false);
 
-      await userService.signUpWithEmailAndPassword(emController.text,
-          fnController.text + " " + lnController.text, pwController.text);
+      await userService.signUpWithEmailAndPassword(
+          emController.text,
+          fnController.text + " " + lnController.text,
+          pwController.text,
+          _base64image);
       _showDialog(
           "Verification", "Please confirm your email address and login.");
     } catch (e) {

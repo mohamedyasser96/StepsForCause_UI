@@ -125,6 +125,32 @@ class MyLandingPage extends StatelessWidget {
                 color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
+    final dellText = Material(
+      elevation: 5.0,
+      borderRadius: BorderRadius.circular(30.0),
+      color: Color.fromRGBO(255, 255, 255, 0.1),
+      child: Padding(
+          padding: const EdgeInsets.only(top: 10.0),
+          child: Column(
+            children: <Widget>[
+              Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: Container(
+                    child: Image.asset("ICCA.png"),
+                  )),
+              Text("Powered By",
+                  textAlign: TextAlign.center,
+                  style: style.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15)),
+              Container(
+                child: Image.asset("dell_logo.png"),
+                width: 200,
+              ),
+            ],
+          )),
+    );
     final registerButton = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
@@ -172,7 +198,7 @@ class MyLandingPage extends StatelessWidget {
                   height: 15.0,
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 100),
+                  padding: const EdgeInsets.only(top: 100, bottom: 180),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -193,7 +219,8 @@ class MyLandingPage extends StatelessWidget {
                       )
                     ],
                   ),
-                )
+                ),
+                dellText
               ],
             ),
           ),
