@@ -6,23 +6,6 @@ import 'package:provider/provider.dart';
 class MyLeaderboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final leaderboard = Leaderboard();
-
-    return MultiProvider(
-        providers: [
-          // Make user stream available
-          StreamProvider<int>.value(value: leaderboard.totalStepCount),
-          StreamProvider<List<UserScore>>.value(value: leaderboard.topTenboard),
-        ],
-
-        // All data will be available in this child and descendents
-        child: _MyLeaderboardPage());
-  }
-}
-
-class _MyLeaderboardPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
     final totalStepCount = Provider.of<int>(context);
     final topTenboard = Provider.of<List<UserScore>>(context);
     final list = <Widget>[];
@@ -33,11 +16,11 @@ class _MyLeaderboardPage extends StatelessWidget {
             radius: 51.0,
             // lineWidth: 5.0,
             percent: 1.0,
-            center: new Text("9567"),
+            center: new Text(totalStepCount.toString()),
             progressColor: Colors.blue,
           ),
           title: Text('Total Steps'),
-          subtitle: Text("9567"),
+          subtitle: Text(totalStepCount.toString()),
         )));
 
     topTenboard != null
@@ -48,8 +31,9 @@ class _MyLeaderboardPage extends StatelessWidget {
               leading: new CircularPercentIndicator(
                 radius: 50.0,
                 // lineWidth: 5.0,
-                percent: v.stepCount / 9567,
-                center: new Text((v.stepCount / 9567 * 100).ceil().toString()),
+                percent: v.stepCount / totalStepCount,
+                center: new Text(
+                    (v.stepCount / totalStepCount * 100).ceil().toString()),
                 progressColor: Colors.yellow,
               ),
             ));
