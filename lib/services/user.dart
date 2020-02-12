@@ -32,12 +32,12 @@ class Profile {
     email = map.values.elementAt(0);
     stepCount = map.values.elementAt(1);
     photo = map.values.elementAt(4);
+    isloggedIn = false;
     try {
       team = map.values.elementAt(5);
     } catch (err) {
       team = null;
     }
-    isloggedIn = false;
   }
 }
 
@@ -182,13 +182,20 @@ class UserService with ChangeNotifier {
           .orderByChild("team")
           .equalTo(name)
           .once();
+      final teamExists = await _db
+          .reference()
+          .child("teams")
+          .reference()
+          .orderByChild("teamName")
+          .equalTo(name)
+          .once();
       if (exists.value != null) {
         int total = 0;
-        team = exists.value;
+        team = teamExists.value;
         if (team != null) {
           var v = Map.from(exists.value);
           v.forEach((key, value) {
-            print(value);
+//            print(value);
             var m = Map.from(value);
             members.add(m);
             total += m['stepCount'];
@@ -204,12 +211,19 @@ class UserService with ChangeNotifier {
 
   Future<bool> addNewTeam(Profile p, String teamName) async {
     teamData = await getTeamByName(teamName);
-    var list = [];
-    list.add(_user.uid);
-    if (teamData == null && p != null) {
+    List list = [];
+    list.add({
+      'name': user.name,
+      'stepCount': user.stepCount,
+      'email': user.email,
+      'uid': _user.uid
+    });
+    if (team == null && teamData == null && p != null) {
       DatabaseReference ref = _db.reference().child("teams").push();
       DatabaseReference uref = _db.reference().child("users").child(_user.uid);
       try {
+        print("List: ");
+        print(list);
         ref.update({'teamName': teamName, 'users': list});
 
         uref.update({'team': teamName});
@@ -222,12 +236,17 @@ class UserService with ChangeNotifier {
   }
 
   Future<bool> addToExistingTeam(Profile p, String teamName) async {
-    teamData = await getTeamByName(teamName);
     checkTeamName = true;
-    print(teamData.users);
-    if (teamData != null) {
+    teamData = await getTeamByName(teamName);
+    if (teamData != null || team != null) {
       var tempList = new List.from(teamData.users);
-      tempList.add(_user.uid);
+      print(tempList);
+      tempList.add({
+        'name': user.name,
+        'stepCount': user.stepCount,
+        'email': user.email,
+        'uid': _user.uid
+      });
       DatabaseReference ref =
           _db.reference().child("teams").child(Map.from(team).keys.first);
       DatabaseReference uref = _db.reference().child("users").child(_user.uid);

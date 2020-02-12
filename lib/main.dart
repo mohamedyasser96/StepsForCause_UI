@@ -12,9 +12,30 @@ class MyApp extends StatelessWidget {
       create: (context) => UserService.instance(),
       child: MaterialApp(
           home: Consumer<UserService>(builder: (context, userService, __) {
-        return StartupWidget();
+        return Splash();
       })),
     );
+  }
+}
+
+class Splash extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new SplashScreen(
+        seconds: 2,
+        navigateAfterSeconds: new StartupWidget(),
+        title: new Text(
+          'Steps for Cause',
+          style: new TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.white),
+        ),
+        // image: new Image.asset('assets/zayed.jpg'),
+        imageBackground: AssetImage('assets/zayed.jpg'),
+        // backgroundColor: Colors.white,
+        styleTextUnderTheLoader: new TextStyle(),
+        photoSize: 100.0,
+        onClick: () => print("Flutter Egypt"),
+        loaderColor: Colors.red);
   }
 }
 
@@ -33,32 +54,11 @@ class StartupWidget extends StatelessWidget {
               return MyHomePage();
               break;
             case AuthStatus.undeterminate:
-              return Splash();
+              return LoadingWidget();
             default:
-              return Splash();
+              return MyLandingPage();
           }
         });
-  }
-}
-
-class Splash extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new SplashScreen(
-        seconds: 3,
-        navigateAfterSeconds: new MyLandingPage(),
-        title: new Text(
-          'Steps for Cause',
-          style: new TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.white),
-        ),
-        // image: new Image.asset('assets/zayed.jpg'),
-        imageBackground: AssetImage('assets/zayed.jpg'),
-        // backgroundColor: Colors.white,
-        styleTextUnderTheLoader: new TextStyle(),
-        photoSize: 100.0,
-        onClick: () => print("Flutter Egypt"),
-        loaderColor: Colors.red);
   }
 }
 
