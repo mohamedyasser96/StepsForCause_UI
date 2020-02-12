@@ -306,32 +306,66 @@ class ChoiceCard extends StatelessWidget {
       List<Widget> widgets = [];
 
 //    print(userService.teamData.totalSteps);
-      members.forEach((f) {
+      try {
+        members.forEach((f) {
+          widgets.add(ListTile(
+            leading: new CircularPercentIndicator(
+              radius: 50.0,
+              // lineWidth: 5.0,
+              percent: f['stepCount'] / teamTotal,
+              center: new Text(
+                  (f['stepCount'] / teamTotal * 100).ceil().toString() + "%"),
+              progressColor: Colors.blue,
+            ),
+            title: Text(f["name"]),
+            subtitle: Text(f["stepCount"].toString()),
+          ));
+        });
+
+        widgets.add(Padding(
+            padding: const EdgeInsets.all(100.0),
+            child: CircularPercentIndicator(
+              radius: 100.0,
+              // lineWidth: 5.0,
+              percent: (teamTotal / totalStepCount),
+              center: new Text(
+                  (teamTotal / totalStepCount * 100).ceil().toString() + "%"),
+              progressColor: Colors.green,
+              header: Text("Team Total Contribution: " + teamTotal.toString()),
+            )));
+      } catch (err) {
         widgets.add(ListTile(
           leading: new CircularPercentIndicator(
             radius: 50.0,
             // lineWidth: 5.0,
-            percent: f['stepCount'] / teamTotal,
+            percent: userService.user.stepCount / userService.user.stepCount,
             center: new Text(
-                (f['stepCount'] / teamTotal * 100).ceil().toString() + "%"),
+                (userService.user.stepCount / userService.user.stepCount * 100)
+                        .ceil()
+                        .toString() +
+                    "%"),
             progressColor: Colors.blue,
           ),
-          title: Text(f["name"]),
-          subtitle: Text(f["stepCount"].toString()),
+          title: Text(userService.user.name),
+          subtitle: Text(userService.user.stepCount.toString()),
         ));
-      });
+        widgets.add(Padding(
+            padding: const EdgeInsets.all(100.0),
+            child: CircularPercentIndicator(
+              radius: 100.0,
+              // lineWidth: 5.0,
+              percent: (userService.user.stepCount / totalStepCount),
+              center: new Text(
+                  (userService.user.stepCount / totalStepCount * 100)
+                          .ceil()
+                          .toString() +
+                      "%"),
+              progressColor: Colors.green,
+              header: Text("Team Total Contribution: " +
+                  userService.user.stepCount.toString()),
+            )));
+      }
 
-      widgets.add(Padding(
-          padding: const EdgeInsets.all(100.0),
-          child: CircularPercentIndicator(
-            radius: 100.0,
-            // lineWidth: 5.0,
-            percent: (teamTotal / totalStepCount),
-            center: new Text(
-                (teamTotal / totalStepCount * 100).ceil().toString() + "%"),
-            progressColor: Colors.green,
-            header: Text("Team Total Contribution: " + teamTotal.toString()),
-          )));
       return ListView(children: widgets);
     }
   }
