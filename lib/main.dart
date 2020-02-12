@@ -3,6 +3,7 @@ import 'package:Steps4Cause/home.dart';
 import 'package:Steps4Cause/landing.dart';
 import 'package:Steps4Cause/services/user.dart';
 import 'package:provider/provider.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -32,11 +33,32 @@ class StartupWidget extends StatelessWidget {
               return MyHomePage();
               break;
             case AuthStatus.undeterminate:
-              return LoadingWidget();
+              return Splash();
             default:
-              return MyLandingPage();
+              return Splash();
           }
         });
+  }
+}
+
+class Splash extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new SplashScreen(
+        seconds: 3,
+        navigateAfterSeconds: new MyLandingPage(),
+        title: new Text(
+          'Steps for Cause',
+          style: new TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 20.0, color: Colors.white),
+        ),
+        // image: new Image.asset('assets/zayed.jpg'),
+        imageBackground: AssetImage('assets/zayed.jpg'),
+        // backgroundColor: Colors.white,
+        styleTextUnderTheLoader: new TextStyle(),
+        photoSize: 100.0,
+        onClick: () => print("Flutter Egypt"),
+        loaderColor: Colors.red);
   }
 }
 
