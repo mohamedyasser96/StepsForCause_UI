@@ -26,36 +26,34 @@ class Profile {
         team: data['team'] ?? '');
   }
 
-  void mapToProfile(Map<String, dynamic> map) {
+  void mapToProfile(Map map) {
     name = map.values.elementAt(3);
     email = map.values.elementAt(0);
     stepCount = map.values.elementAt(1);
     photo = map.values.elementAt(4);
     isloggedIn = false;
   }
-
-  Map toMap() {
-    Map toReturn = new Map();
-    toReturn['name'] = name;
-    toReturn['email'] = email;
-    toReturn['stepCount'] = stepCount;
-    return toReturn;
-  }
 }
 
 class Team {
-  final String name;
-  final List<Profile> users;
-  final int totalSteps;
+  String teamName;
+  List users;
+  int totalSteps;
 
-  Team({this.name, this.users, this.totalSteps});
+  Team({this.teamName, this.users, this.totalSteps});
 
   factory Team.fromMap(Map data) {
     data = data ?? {};
     return Team(
-        name: data['name'] ?? '',
+        teamName: data['teamName'] ?? '',
         users: data['users'] ?? [],
         totalSteps: data['totalSteps'] ?? 0);
+  }
+
+  void mapToTeam(Map<String, dynamic> map) {
+    teamName = map.values.elementAt(0);
+    users = map.values.elementAt(2);
+    totalSteps = map.values.elementAt(1);
   }
 
   // getTeams() {
@@ -83,14 +81,16 @@ class UserService with ChangeNotifier {
   final FirebaseDatabase _db;
 
   // Shared State for Widgets
-
+  bool checkTeamName;
   Profile _profile; // custom user data in Firestore
   FirebaseUser _user; // custom user data in Firestore
   var team;
+  Team teamData;
   AuthStatus _status = AuthStatus.undeterminate;
   AuthStatus get status => _status;
   Profile get user => _profile;
   StreamSubscription _subscription;
+  List teamMembers = [];
 
   UserService.instance()
       : _auth = FirebaseAuth.instance,
@@ -103,6 +103,7 @@ class UserService with ChangeNotifier {
         _profile.mapToProfile(Map<String, dynamic>.from(change.snapshot.value));
         if (u.isEmailVerified && profile != null) {
           _status = AuthStatus.authenticated;
+          getTeamData(profile.team);
           notifyListeners();
         }
       });
@@ -179,44 +180,95 @@ class UserService with ChangeNotifier {
         .reference()
         .child('teams')
         .reference()
-        .orderByChild("Name")
+        .orderByChild("teamName")
         .equalTo(name)
         .limitToLast(1)
         .once();
     if (exists.value != null) {
-      team = exists.value;
-    }
-  }
+      final t = Team.fromMap(Map.from(exists.value).values.toList()[0]);
+      teamData = t;
 
-  Future<bool> checkTeamName(String name) async {
-    bool flag = false;
-    getTeamByName(name);
-    if (team != null) flag = true;
-
-    return flag;
-  }
-
-  Future<void> addNewTeam(Profile p, String teamName) async {
-    bool flag = await checkTeamName(teamName);
-    var list = [];
-    list.add({'name': p.name, 'email': p.email, 'stepsCount': p.stepCount});
-    if (!flag && p != null) {
-      DatabaseReference ref = _db.reference().child("teams").push();
-      return ref.update(
-          {'teamName': teamName, 'users': list, 'totalSteps': p.stepCount});
+      print(teamData.users);
+      checkTeamName = true;
     } else
-      return null;
+      checkTeamName = false;
   }
 
-  Future<void> addToExistingTeam(Profile p, String teamName) async {
+  // Future<bool> checkTeamName(String name) async {
+  //   bool flag = false;
+  //   getTeamByName(name);
+  //   if (team != null) flag = true;
+
+  //   return flag;
+  // }
+
+  Future<bool> addNewTeam(Profile p, String teamName) async {
     await getTeamByName(teamName);
-    var tempList = new List.from(Map.from(team).values.toList()[0]['users']);
-    tempList.add({'name': p.name, 'email': p.email, 'stepsCount': p.stepCount});
-    print(tempList);
-    DatabaseReference ref =
-        _db.reference().child("teams").child(Map.from(team).keys.first);
-    return ref.update(
-        {'teamName': teamName, 'users': tempList, 'totalSteps': p.stepCount});
+    var list = [];
+    list.add({'user': _user.uid});
+    if (!checkTeamName && p != null) {
+      DatabaseReference ref = _db.reference().child("teams").push();
+      DatabaseReference uref = _db.reference().child("users").child(_user.uid);
+      try {
+        ref.update({'teamName': teamName, 'users': list});
+
+        uref.update({'team': teamName});
+        return true;
+      } catch (err) {
+        return false;
+      }
+    } else
+      return false;
+  }
+
+  Future<bool> addToExistingTeam(Profile p, String teamName) async {
+    await getTeamByName(teamName);
+    if (checkTeamName) {
+      var tempList = new List.from(teamData.users);
+      tempList.add({'user': _user.uid});
+      DatabaseReference ref =
+          _db.reference().child("teams").child(Map.from(team).keys.first);
+      DatabaseReference uref = _db.reference().child("users").child(_user.uid);
+      uref.update({'team': teamName});
+      ref.update({
+        'users': tempList,
+      });
+      return true;
+    } else
+      return false;
+  }
+
+  Future<void> getTeamData(String teamName) async {
+//    teamMembers = [];
+    final exists = await _db
+        .reference()
+        .child('users')
+        .reference()
+        .orderByChild("team")
+        .equalTo(teamName)
+        .once();
+
+    if (exists.value != null) {
+      var v = Map.from(exists.value);
+      v.forEach((key, value) {
+        teamMembers.add({value});
+      });
+      teamData.teamName = teamName;
+      teamData.users = teamMembers;
+    }
+
+
+//        .map((change) {
+//      var v = Map.from(change.snapshot.value);
+//      v.forEach((key, value) {
+//        teamMembers.add(Team.fromMap(value));
+//      });
+//    });
+
+  }
+
+  Future<int> getTeamTotalSteps(String teamName) {
+    return null;
   }
 
   Future<void> signOut() async {
