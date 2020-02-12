@@ -144,7 +144,7 @@ class ChoiceCard extends StatelessWidget {
         ),
       );
     } else if (totalStepCount != null) {
-      userService.getTeamData(userService.user.team);
+      userService.getTeamByName(userService.user.team);
       return Card(
           color: Colors.white, child: _myTeamView(context, totalStepCount));
     } else
@@ -210,7 +210,7 @@ class ChoiceCard extends StatelessWidget {
     }
 
     final userService = Provider.of<UserService>(context);
-    if (userService.user.team == '') {
+    if (userService.user.team == null) {
       TextStyle style = TextStyle(
           fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.black);
 
@@ -298,11 +298,8 @@ class ChoiceCard extends StatelessWidget {
             ])),
       );
     } else {
-      List<dynamic> members = userService.teamMembers.toList();
-
-//    print(members.runtimeType);
-
-      int teamTotal = (userService.teamTotal);
+      List<dynamic> members = userService.teamData.users;
+      int teamTotal = (userService.teamData.totalSteps);
       List<Widget> widgets = [];
 
 //    print(userService.teamData.totalSteps);

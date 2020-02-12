@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -31,6 +32,11 @@ class Profile {
     email = map.values.elementAt(0);
     stepCount = map.values.elementAt(1);
     photo = map.values.elementAt(4);
+    try {
+      team = map.values.elementAt(5);
+    } catch (err) {
+      team = null;
+    }
     isloggedIn = false;
   }
 }
@@ -55,24 +61,6 @@ class Team {
     users = map.values.elementAt(2);
     totalSteps = map.values.elementAt(1);
   }
-
-  // getTeams() {
-  //   teamList = _db
-  //       .reference()
-  //       .child("teams")
-  //       .onValue
-  //       .map((change) {
-  //     var v = Map<String, Map>.from(change.snapshot.value);
-  //     final List<TeamMember> datalist = [];
-  //     v.forEach((key, value) {
-  //       datalist.add(TeamMember.fromMap(value));
-  //     });
-  //     datalist.sort((a, b) => b.stepCount - a.stepCount);
-  //     print(datalist);
-  //     print(v);
-  //     return datalist;
-  //   });
-  // }
 }
 
 class UserService with ChangeNotifier {
@@ -81,7 +69,7 @@ class UserService with ChangeNotifier {
   final FirebaseDatabase _db;
 
   // Shared State for Widgets
-  bool checkTeamName;
+  bool checkTeamName = false;
   Profile _profile; // custom user data in Firestore
   FirebaseUser _user; // custom user data in Firestore
   var team;
@@ -90,21 +78,27 @@ class UserService with ChangeNotifier {
   AuthStatus get status => _status;
   Profile get user => _profile;
   StreamSubscription _subscription;
-  Set teamMembers = {};
-  int teamTotal;
 
   UserService.instance()
       : _auth = FirebaseAuth.instance,
         _db = FirebaseDatabase.instance {
     _subscription =
         _auth.onAuthStateChanged.doOnData(_onAuthStateChanged).switchMap((u) {
-      return _db.reference().child("users").child(u.uid).onValue.map((change) {
+      return _db
+          .reference()
+          .child("users")
+          .child(u.uid)
+          .onValue
+          .map((change) async {
         final profile = Profile.fromMap(change.snapshot.value);
         _profile = profile;
         _profile.mapToProfile(Map<String, dynamic>.from(change.snapshot.value));
         if (u.isEmailVerified && profile != null) {
+          print("PROFILE");
+          print(profile);
+
           _status = AuthStatus.authenticated;
-          getTeamData(profile.team);
+          teamData = await getTeamByName(profile.team);
           notifyListeners();
         }
       });
@@ -176,39 +170,43 @@ class UserService with ChangeNotifier {
       return null;
   }
 
-  Future<void> getTeamByName(String name) async {
-    final exists = await _db
-        .reference()
-        .child('teams')
-        .reference()
-        .orderByChild("teamName")
-        .equalTo(name)
-        .limitToLast(1)
-        .once();
-    if (exists.value != null) {
-      team = exists.value;
-      final t = Team.fromMap(Map.from(exists.value).values.toList()[0]);
-      teamData = t;
-
-      print(teamData.users);
-      checkTeamName = true;
-    } else
-      checkTeamName = false;
+  Future getTeamByName(String name) async {
+    Team temp = new Team();
+    if (user.team != null || checkTeamName) {
+      temp.teamName = name;
+      Set members = {};
+      final exists = await _db
+          .reference()
+          .child('users')
+          .reference()
+          .orderByChild("team")
+          .equalTo(name)
+          .once();
+      if (exists.value != null) {
+        int total = 0;
+        team = exists.value;
+        if (team != null) {
+          var v = Map.from(exists.value);
+          v.forEach((key, value) {
+            print(value);
+            var m = Map.from(value);
+            members.add(m);
+            total += m['stepCount'];
+          });
+          temp.totalSteps = total;
+          temp.users = members.toList();
+        }
+        return temp;
+      } else
+        return null;
+    }
   }
 
-  // Future<bool> checkTeamName(String name) async {
-  //   bool flag = false;
-  //   getTeamByName(name);
-  //   if (team != null) flag = true;
-
-  //   return flag;
-  // }
-
   Future<bool> addNewTeam(Profile p, String teamName) async {
-    await getTeamByName(teamName);
+    teamData = await getTeamByName(teamName);
     var list = [];
     list.add(_user.uid);
-    if (!checkTeamName && p != null) {
+    if (teamData == null && p != null) {
       DatabaseReference ref = _db.reference().child("teams").push();
       DatabaseReference uref = _db.reference().child("users").child(_user.uid);
       try {
@@ -224,11 +222,11 @@ class UserService with ChangeNotifier {
   }
 
   Future<bool> addToExistingTeam(Profile p, String teamName) async {
-    await getTeamByName(teamName);
-    if (checkTeamName) {
-      print(team);
+    teamData = await getTeamByName(teamName);
+    checkTeamName = true;
+    print(teamData.users);
+    if (teamData != null) {
       var tempList = new List.from(teamData.users);
-      print(tempList);
       tempList.add(_user.uid);
       DatabaseReference ref =
           _db.reference().child("teams").child(Map.from(team).keys.first);
@@ -240,31 +238,6 @@ class UserService with ChangeNotifier {
       return true;
     } else
       return false;
-  }
-
-  Future<void> getTeamData(String teamName) async {
-//    teamMembers = [];
-    final exists = await _db
-        .reference()
-        .child('users')
-        .reference()
-        .orderByChild("team")
-        .equalTo(teamName)
-        .once();
-    if (exists.value != null && teamMembers.isEmpty) {
-      int total = 0;
-      var v = Map.from(exists.value);
-      v.forEach((key, value) {
-        var m = Map.from(value);
-        teamMembers.add(m);
-        total += m['stepCount'];
-      });
-      teamTotal = total;
-    }
-  }
-
-  Future<int> getTeamTotalSteps(String teamName) {
-    return null;
   }
 
   Future<void> signOut() async {
