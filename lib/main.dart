@@ -25,8 +25,8 @@ class StartupWidget extends StatelessWidget {
         future: userService.isCurrentUserVerified(),
         initialData: AuthStatus.undeterminate,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          print("ERROR " + snapshot.error.toString());
-          print("SNAPSHOT " + snapshot.data.toString());
+          // print("ERROR " + snapshot.error.toString());
+          // print("SNAPSHOT " + snapshot.data.toString());
           switch (snapshot.data) {
             case AuthStatus.authenticated:
               return MyHomePage();

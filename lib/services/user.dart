@@ -185,6 +185,7 @@ class UserService with ChangeNotifier {
         .limitToLast(1)
         .once();
     if (exists.value != null) {
+      team = exists.value;
       final t = Team.fromMap(Map.from(exists.value).values.toList()[0]);
       teamData = t;
 
@@ -205,7 +206,7 @@ class UserService with ChangeNotifier {
   Future<bool> addNewTeam(Profile p, String teamName) async {
     await getTeamByName(teamName);
     var list = [];
-    list.add({'user': _user.uid});
+    list.add(_user.uid);
     if (!checkTeamName && p != null) {
       DatabaseReference ref = _db.reference().child("teams").push();
       DatabaseReference uref = _db.reference().child("users").child(_user.uid);
@@ -224,8 +225,10 @@ class UserService with ChangeNotifier {
   Future<bool> addToExistingTeam(Profile p, String teamName) async {
     await getTeamByName(teamName);
     if (checkTeamName) {
+      print(team);
       var tempList = new List.from(teamData.users);
-      tempList.add({'user': _user.uid});
+      print(tempList);
+      tempList.add(_user.uid);
       DatabaseReference ref =
           _db.reference().child("teams").child(Map.from(team).keys.first);
       DatabaseReference uref = _db.reference().child("users").child(_user.uid);
@@ -251,20 +254,9 @@ class UserService with ChangeNotifier {
     if (exists.value != null) {
       var v = Map.from(exists.value);
       v.forEach((key, value) {
-        teamMembers.add({value});
+        teamMembers.add(Map.from(value));
       });
-      teamData.teamName = teamName;
-      teamData.users = teamMembers;
     }
-
-
-//        .map((change) {
-//      var v = Map.from(change.snapshot.value);
-//      v.forEach((key, value) {
-//        teamMembers.add(Team.fromMap(value));
-//      });
-//    });
-
   }
 
   Future<int> getTeamTotalSteps(String teamName) {

@@ -129,8 +129,10 @@ class ChoiceCard extends StatelessWidget {
           ),
         ),
       );
-    } else
+    } else {
+      userService.getTeamData(userService.user.team);
       return Card(color: Colors.white, child: _myListView(context));
+    }
   }
 }
 
@@ -184,7 +186,6 @@ Widget _myListView(BuildContext context) {
               child: new Text("Close"),
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.pop(context);
               },
             ),
           ],
@@ -218,10 +219,15 @@ Widget _myListView(BuildContext context) {
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width,
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          onPressed: () {
+          onPressed: () async {
             try {
-              if (userService.addNewTeam(userService.user, tnController.text) !=
-                  null) {
+              bool flag = await userService.addNewTeam(
+                  userService.user, tnController.text);
+              if (flag) {
+                _showDialog(
+                    "Great!",
+                    "Team was successfully created with team name: " +
+                        tnController.text);
               } else {
                 throw ('taken');
               }
@@ -242,13 +248,20 @@ Widget _myListView(BuildContext context) {
         child: MaterialButton(
           minWidth: MediaQuery.of(context).size.width,
           padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          onPressed: () {
+          onPressed: () async {
             try {
-              userService.addToExistingTeam(
+              bool flag = await userService.addToExistingTeam(
                   userService.user, tnController.text);
+              if (flag)
+                _showDialog(
+                    "Great!",
+                    "You have been successfully added to team: " +
+                        tnController.text);
+              else
+                throw ('not found');
             } catch (err) {
               _showDialog("Oops!",
-                  "Team Name does not exist taken, are you sure you are not creating a new team?");
+                  "This Team does not exist, are you sure you are not creating a new team?");
             }
           },
           child: Text("Join Team",
@@ -269,63 +282,40 @@ Widget _myListView(BuildContext context) {
             joinButton,
           ])),
     );
-  } else
-    return ListView(
-      children: <Widget>[
-        ListTile(
-          leading: new CircularPercentIndicator(
-            radius: 50.0,
-            // lineWidth: 5.0,
-            percent: 0.096,
-            center: new Text("10%"),
-            progressColor: Colors.blue,
-          ),
-          title: Text('Mostafa Henna'),
-          subtitle: Text("81 Steps"),
-        ),
-        ListTile(
-          leading: new CircularPercentIndicator(
-            radius: 50.0,
-            // lineWidth: 5.0,
-            percent: 0.169,
-            center: new Text("17%"),
-            progressColor: Colors.blue,
-          ),
-          title: Text('Ahmed Osama'),
-          subtitle: Text("141 Steps"),
-        ),
-        ListTile(
-          leading: new CircularPercentIndicator(
-            radius: 50.0,
-            // lineWidth: 5.0,
-            percent: 0.21,
-            center: new Text("21%"),
-            progressColor: Colors.blue,
-          ),
-          title: Text('Omar Abdulaal'),
-          subtitle: Text("175 Steps"),
-        ),
-        ListTile(
-          leading: new CircularPercentIndicator(
-            radius: 50.0,
-            // lineWidth: 5.0,
-            percent: 0.526,
-            center: new Text("53%"),
-            progressColor: Colors.blue,
-          ),
-          title: Text('You'),
-          subtitle: Text('441 Steps'),
-        ),
-        Padding(
-            padding: const EdgeInsets.all(100.0),
-            child: CircularPercentIndicator(
-              radius: 100.0,
-              // lineWidth: 5.0,
-              percent: 0.23,
-              center: new Text("23%"),
-              progressColor: Colors.green,
-              header: Text("Team Total Contribution: 838 Steps"),
-            ))
-      ],
-    );
+  } else {
+    List<dynamic> members = userService.teamMembers;
+    var distinctMembers = members.toSet().toList();
+
+//    print(members.runtimeType);
+
+//    print(members);
+    List<Widget> widgets = [];
+
+//    print(userService.teamData.totalSteps);
+    distinctMembers.forEach((f) {
+       widgets.add(ListTile(
+         leading: new CircularPercentIndicator(
+           radius: 50.0,
+           // lineWidth: 5.0,
+           percent: 0.096,
+           center: new Text("10%"),
+           progressColor: Colors.blue,
+         ),
+         title: Text(f["name"]),
+         subtitle: Text(f["stepCount"].toString()),
+       ));
+     });
+
+    widgets.add(Padding(
+        padding: const EdgeInsets.all(100.0),
+        child: CircularPercentIndicator(
+          radius: 100.0,
+          // lineWidth: 5.0,
+          percent: 0.23,
+          center: new Text("23%"),
+          progressColor: Colors.green,
+          header: Text("Team Total Contribution: 838 Steps"),
+        )));
+    return ListView(children: widgets);
+  }
 }
