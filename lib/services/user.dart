@@ -90,7 +90,8 @@ class UserService with ChangeNotifier {
   AuthStatus get status => _status;
   Profile get user => _profile;
   StreamSubscription _subscription;
-  List teamMembers = [];
+  Set teamMembers = {};
+  int teamTotal;
 
   UserService.instance()
       : _auth = FirebaseAuth.instance,
@@ -250,12 +251,15 @@ class UserService with ChangeNotifier {
         .orderByChild("team")
         .equalTo(teamName)
         .once();
-
-    if (exists.value != null) {
+    if (exists.value != null && teamMembers.isEmpty) {
+      int total = 0;
       var v = Map.from(exists.value);
       v.forEach((key, value) {
-        teamMembers.add(Map.from(value));
+        var m = Map.from(value);
+        teamMembers.add(m);
+        total += m['stepCount'];
       });
+      teamTotal = total;
     }
   }
 

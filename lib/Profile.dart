@@ -298,22 +298,22 @@ class ChoiceCard extends StatelessWidget {
             ])),
       );
     } else {
-      List<dynamic> members = userService.teamMembers;
-      var distinctMembers = members.toSet().toList();
+      List<dynamic> members = userService.teamMembers.toList();
 
 //    print(members.runtimeType);
 
-//    print(members);
+      int teamTotal = (userService.teamTotal);
       List<Widget> widgets = [];
 
 //    print(userService.teamData.totalSteps);
-      distinctMembers.forEach((f) {
+      members.forEach((f) {
         widgets.add(ListTile(
           leading: new CircularPercentIndicator(
             radius: 50.0,
             // lineWidth: 5.0,
-            percent: 0.096,
-            center: new Text("10%"),
+            percent: f['stepCount'] / teamTotal,
+            center: new Text(
+                (f['stepCount'] / teamTotal * 100).ceil().toString() + "%"),
             progressColor: Colors.blue,
           ),
           title: Text(f["name"]),
@@ -326,10 +326,11 @@ class ChoiceCard extends StatelessWidget {
           child: CircularPercentIndicator(
             radius: 100.0,
             // lineWidth: 5.0,
-            percent: 0.23,
-            center: new Text("23%"),
+            percent: (teamTotal / totalStepCount),
+            center: new Text(
+                (teamTotal / totalStepCount * 100).ceil().toString() + "%"),
             progressColor: Colors.green,
-            header: Text("Team Total Contribution: 838 Steps"),
+            header: Text("Team Total Contribution: " + teamTotal.toString()),
           )));
       return ListView(children: widgets);
     }
