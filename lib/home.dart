@@ -1,5 +1,5 @@
+import 'package:Steps4Cause/services/leaderboard.dart';
 import 'package:flutter/material.dart';
-import 'package:Steps4Cause/services/user.dart';
 import 'package:Steps4Cause/setting.dart';
 import 'package:Steps4Cause/widgets/index.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +9,23 @@ import 'package:Steps4Cause/Profile.dart';
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final userService = Provider.of<UserService>(context);
+    final leaderboard = Leaderboard();
+
+    return MultiProvider(
+        providers: [
+          // Make user stream available
+          StreamProvider<int>.value(value: leaderboard.totalStepCount),
+          StreamProvider<List<UserScore>>.value(value: leaderboard.topTenboard),
+        ],
+
+        // All data will be available in this child and descendents
+        child: _MyHomePage());
+  }
+}
+
+class _MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: new AppScaffold(
