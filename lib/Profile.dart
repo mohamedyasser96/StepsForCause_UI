@@ -331,21 +331,36 @@ class ChoiceCard extends StatelessWidget {
               header: Text("Team Total Contribution: " + teamTotal.toString()),
             )));
       } catch (err) {
-        widgets.add(ListTile(
-          leading: new CircularPercentIndicator(
-            radius: 50.0,
-            // lineWidth: 5.0,
-            percent: userService.user.stepCount / userService.user.stepCount,
-            center: new Text(
-                (userService.user.stepCount / userService.user.stepCount * 100)
-                        .ceil()
-                        .toString() +
-                    "%"),
-            progressColor: Colors.blue,
-          ),
-          title: Text(userService.user.name),
-          subtitle: Text(userService.user.stepCount.toString()),
-        ));
+        try {
+          widgets.add(ListTile(
+            leading: new CircularPercentIndicator(
+              radius: 50.0,
+              // lineWidth: 5.0,
+              percent: userService.user.stepCount / userService.user.stepCount,
+              center: new Text(
+                  (userService.user.stepCount / userService.user.stepCount *
+                      100)
+                      .ceil()
+                      .toString() +
+                      "%"),
+              progressColor: Colors.blue,
+            ),
+            title: Text(userService.user.name),
+            subtitle: Text(userService.user.stepCount.toString()),
+          ));
+        }catch(e){
+          widgets.add(ListTile(
+            leading: new CircularPercentIndicator(
+              radius: 50.0,
+              // lineWidth: 5.0,
+              percent: userService.user.stepCount / userService.user.stepCount,
+              center: new Text("0%"),
+              progressColor: Colors.blue,
+            ),
+            title: Text(userService.user.name),
+            subtitle: Text(userService.user.stepCount.toString()),
+          ));
+        }
         widgets.add(Padding(
             padding: const EdgeInsets.all(100.0),
             child: CircularPercentIndicator(

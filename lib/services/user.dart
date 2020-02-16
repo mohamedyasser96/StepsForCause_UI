@@ -28,16 +28,15 @@ class Profile {
   }
 
   void mapToProfile(Map map) {
-    name = map.values.elementAt(3);
-    email = map.values.elementAt(0);
-    stepCount = map.values.elementAt(1);
-    photo = map.values.elementAt(4);
+    print(map);
+    name = map["name"];
+    email = map["email"];
+    stepCount = map["stepCount"];
+    photo = map["photo"];
+    if(photo == null)
+      photo ="";
     isloggedIn = false;
-    try {
-      team = map.values.elementAt(5);
-    } catch (err) {
-      team = null;
-    }
+    team = map["team"];
   }
 }
 
