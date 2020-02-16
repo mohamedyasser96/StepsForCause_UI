@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/home.dart';
 import 'package:Steps4Cause/landing.dart';
@@ -107,6 +109,7 @@ class DialogWidget extends StatelessWidget {
           child: new Text("OK"),
           onPressed: () {
             Navigator.of(context).pop();
+            exit(0);
           },
         ),
       ],
