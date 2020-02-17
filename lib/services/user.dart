@@ -4,6 +4,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:root_checker/root_checker.dart';
+
 
 enum AuthStatus { undeterminate, authenticated, unauthenticated, unverified }
 
@@ -292,5 +294,10 @@ class UserService with ChangeNotifier {
     }
     // print("STATUS BEFORE RETURN " + _status.toString());
     return _status;
+  }
+
+  Future<bool> isDeviceRooted() async {
+    bool rooted = await RootChecker.isDeviceRooted;
+    return rooted;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/home.dart';
 import 'package:Steps4Cause/landing.dart';
@@ -44,21 +46,38 @@ class StartupWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final userService = Provider.of<UserService>(context);
     return new FutureBuilder(
-        future: userService.isCurrentUserVerified(),
-        initialData: AuthStatus.undeterminate,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          // print("ERROR " + snapshot.error.toString());
-          // print("SNAPSHOT " + snapshot.data.toString());
-          switch (snapshot.data) {
-            case AuthStatus.authenticated:
-              return MyHomePage();
-              break;
-            case AuthStatus.undeterminate:
-              return LoadingWidget();
-            default:
-              return MyLandingPage();
+        future: userService.isDeviceRooted(),
+        builder: (BuildContext contextRoot, AsyncSnapshot snapshotRoot) {
+          /******************** This is where we check if the device is rooted. ************************
+           * ****************** All emulators are rooted by default so comment  ************************
+           * ****************** out the if else statement **********************************************
+           */
+          if (snapshotRoot.hasData) {
+            if (!snapshotRoot.data) {
+              print("DEVICE IS NOT ROOTED");
+              return new FutureBuilder(
+                  future: userService.isCurrentUserVerified(),
+                  initialData: AuthStatus.undeterminate,
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    // print("ERROR " + snapshot.error.toString());
+                    // print("SNAPSHOT " + snapshot.data.toString());
+                    switch (snapshot.data) {
+                      case AuthStatus.authenticated:
+                        return MyHomePage();
+                        break;
+                      case AuthStatus.undeterminate:
+                        return LoadingWidget();
+                      default:
+                        return MyLandingPage();
+                    }
+                  });
+            } else {
+              return DialogWidget();
+            }
           }
-        });
+         return Container();
+        },
+    );
   }
 }
 
@@ -75,6 +94,26 @@ class LoadingWidget extends StatelessWidget {
         ],
       ),
     ));
+  }
+}
+
+class DialogWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: new Text("DEVICE ROOTED"),
+      content: new Text("Cannot access the application as long as your device is rooted."),
+      actions: <Widget>[
+        // usually buttons at the bottom of the dialog
+        new FlatButton(
+          child: new Text("OK"),
+          onPressed: () {
+            Navigator.of(context).pop();
+            exit(0);
+          },
+        ),
+      ],
+    );
   }
 }
 
