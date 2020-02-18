@@ -47,3 +47,4 @@ pubspec.lock
 
 ios/Runner.xcodeproj/project.pbxproj
 ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+android/google-services.json

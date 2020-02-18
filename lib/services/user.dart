@@ -128,6 +128,18 @@ class UserService with ChangeNotifier {
     await user.sendEmailVerification();
   }
 
+  Future<void> addSocialMediaAccount(FirebaseUser user) async {
+    DatabaseReference ref = _db.reference().child("users").child(user.uid);
+
+    return ref.update({
+      'uid':user.uid,
+      'email':user.email,
+      'stepCount':0,
+      'name':user.displayName,
+      "photoURL":user.photoUrl
+    });
+  }
+
   Future<void> _onSignUp(FirebaseUser user, String name, var photo) async {
     DocumentReference refFirestore =
         _firestore.collection("/users").document(user.uid);
