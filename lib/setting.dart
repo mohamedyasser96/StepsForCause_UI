@@ -1,13 +1,10 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:Steps4Cause/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:Steps4Cause/services/user.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:social_share_plugin/social_share_plugin.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -25,12 +22,6 @@ class MapScreenState extends State<SettingsPage>
   @override
   void initState() {
     super.initState();
-    testSocialShare();
-  }
-
-  void testSocialShare() async {
-    File file = await ImagePicker.pickImage(source: ImageSource.gallery);
-    await SocialSharePlugin.shareToFeedInstagram(path: file.path);
   }
 
   void setAvatar(image) {
