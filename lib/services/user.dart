@@ -137,7 +137,8 @@ class UserService with ChangeNotifier {
       'email': user.email,
       'stepCount': 0,
       'name': name,
-      'photo': photo
+      'photo': photo,
+      'isAdmin': false
     });
   }
 
