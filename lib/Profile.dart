@@ -65,6 +65,8 @@ class ChoiceCard extends StatelessWidget {
   final Choice choice;
 
   double roundDouble(double value) {
+    if (value.isNaN || value.isInfinite)
+      return 0.0;
     int places = 2;
     double mod = pow(10.0, places);
     return ((value * mod).round().toDouble() / mod);
@@ -73,7 +75,13 @@ class ChoiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle textStyle = Theme.of(context).textTheme.display1;
-    final totalStepCount = Provider.of<int>(context);
+    final totalStepCountUsers = Provider.of<int>(context);
+    String totalStepCountTeams = Provider.of<String>(context);
+    int totalStepCount;
+
+    try {
+      totalStepCount = totalStepCountUsers + int.parse(totalStepCountTeams);
+    } catch (Exception) {}
 
     // getfile();
     final quotes = [
@@ -335,8 +343,8 @@ class ChoiceCard extends StatelessWidget {
                       leading: new CircularPercentIndicator(
                         radius: 50.0,
                         // lineWidth: 5.0,
-                        percent: 0,
-                        center: new Text(0.ceil().toString() + "%"),
+                        percent: 0.0,
+                        center: new Text(0.0.ceil().toString() + "%"),
                         progressColor: Colors.blue,
                       ),
                       title: Text(f["name"]),
@@ -366,8 +374,8 @@ class ChoiceCard extends StatelessWidget {
                       child: CircularPercentIndicator(
                         radius: 100.0,
                         // lineWidth: 5.0,
-                        percent: 0,
-                        center: new Text(0.ceil().toString() + "%"),
+                        percent: 0.0,
+                        center: new Text(0.0.ceil().toString() + "%"),
                         progressColor: Colors.green,
                         header: Text(
                             "Team Total Contribution: " + teamTotal.toString()),

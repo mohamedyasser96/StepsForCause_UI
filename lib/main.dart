@@ -74,8 +74,6 @@ class StartupWidget extends StatelessWidget {
         return new StreamBuilder(
             stream: service.userService.subject.stream,
             builder: (context, AsyncSnapshot snapshot) {
-              // print("ERROR " + snapshot.error.toString());
-              print("SNAPSHOT " + snapshot.data.toString());
               switch (snapshot.data) {
                 case AuthStatus.authenticated:
                   return MyHomePage();
@@ -90,7 +88,7 @@ class StartupWidget extends StatelessWidget {
 //              return DialogWidget();
 //            }
 //          }
-        return Container();
+//        return Container();
       },
     );
   }
