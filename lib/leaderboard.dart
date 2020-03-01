@@ -8,6 +8,7 @@ class MyLeaderboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalStepCount = Provider.of<int>(context);
     final topTenboard = Provider.of<List<UserScore>>(context);
+
     final list = <Widget>[];
     list.add(Padding(
         padding: const EdgeInsets.only(bottom: 30.0),

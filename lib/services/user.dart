@@ -1,13 +1,11 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:root_checker/root_checker.dart';
+import 'package:rxdart/rxdart.dart';
 
-
-enum AuthStatus { undeterminate, authenticated, unauthenticated, unverified }
+enum AuthStatus { undetermined, authenticated, unauthenticated, unverified }
 
 class Profile {
   String name;
@@ -16,8 +14,10 @@ class Profile {
   bool isloggedIn;
   var photo;
   String team;
+  String id;
 
-  Profile({this.name, this.stepCount, this.email, this.photo, this.team});
+  Profile(
+      {this.name, this.stepCount, this.email, this.photo, this.team, this.id});
 
   factory Profile.fromMap(Map data) {
     data = data ?? {};
@@ -26,134 +26,113 @@ class Profile {
         stepCount: data['stepCount'] ?? 0,
         email: data['email'] ?? '',
         photo: data['photo'] ?? '',
-        team: data['team'] ?? '');
+        team: data['team'] ?? '',
+        id: data['uid'] ?? '');
   }
 
   void mapToProfile(Map map) {
-    print(map);
     name = map["name"];
     email = map["email"];
     stepCount = map["stepCount"];
     photo = map["photo"];
-    if(photo == null)
-      photo ="";
+    if (photo == null) photo = "";
     isloggedIn = false;
     team = map["team"];
-  }
-}
-
-class Team {
-  String teamName;
-  List users;
-  int totalSteps;
-
-  Team({this.teamName, this.users, this.totalSteps});
-
-  factory Team.fromMap(Map data) {
-    data = data ?? {};
-    return Team(
-        teamName: data['teamName'] ?? '',
-        users: data['users'] ?? [],
-        totalSteps: data['totalSteps'] ?? 0);
+    id = map['uid'];
   }
 
-  void mapToTeam(Map<String, dynamic> map) {
-    teamName = map.values.elementAt(0);
-    users = map.values.elementAt(2);
-    totalSteps = map.values.elementAt(1);
+  void printProfile() {
+    print("{\n" +
+        "\tname: " +
+        name.toString() +
+        "\n" +
+        "\temail: " +
+        email.toString() +
+        "\n" +
+        "\tstepCount: " +
+        stepCount.toString() +
+        "\n" +
+        "\tphoto: " +
+        photo.toString() +
+        "\n" +
+        "\tisloggedIn: " +
+        isloggedIn.toString() +
+        "\n" +
+        "\tteam: " +
+        team.toString() +
+        "\n" +
+        "\tid: " +
+        id.toString() +
+        "\n" +
+        "}");
   }
 }
 
 class UserService with ChangeNotifier {
   // Dependencies
-  final FirebaseAuth _auth;
-  final FirebaseDatabase _db;
+  final FirebaseAuth auth;
+  final Firestore _firestore;
 
   // Shared State for Widgets
   bool checkTeamName = false;
   Profile _profile; // custom user data in Firestore
   FirebaseUser _user; // custom user data in Firestore
-  var team;
-  Team teamData;
-  AuthStatus _status = AuthStatus.undeterminate;
+  AuthStatus _status = AuthStatus.undetermined;
   AuthStatus get status => _status;
   Profile get user => _profile;
-  StreamSubscription _subscription;
+  BehaviorSubject<AuthStatus> subject;
 
   UserService.instance()
-      : _auth = FirebaseAuth.instance,
-        _db = FirebaseDatabase.instance {
-    _subscription =
-        _auth.onAuthStateChanged.doOnData(_onAuthStateChanged).switchMap((u) {
-      return _db
-          .reference()
-          .child("users")
-          .child(u.uid)
-          .onValue
-          .map((change) async {
-        final profile = Profile.fromMap(change.snapshot.value);
-        _profile = profile;
-        _profile.mapToProfile(Map<String, dynamic>.from(change.snapshot.value));
-        if (u.isEmailVerified && profile != null) {
-          print("PROFILE");
-          print(profile);
-
-          _status = AuthStatus.authenticated;
-          teamData = await getTeamByName(profile.team);
-          notifyListeners();
-        }
-      });
-    }).listen((_) {});
+      : auth = FirebaseAuth.instance,
+        _firestore = Firestore.instance {
+    subject = new BehaviorSubject<AuthStatus>.seeded(status);
   }
 
-  Future<void> _onAuthStateChanged(FirebaseUser u) async {
+  Future<void> onAuthStateChanged(FirebaseUser u) async {
     _user = u;
     if (u == null) {
       _status = AuthStatus.unauthenticated;
     } else if (u.isEmailVerified == false) {
       _status = AuthStatus.unverified;
     } else {
-      _status = AuthStatus.undeterminate;
+      _status = AuthStatus.undetermined;
     }
-    notifyListeners();
+    isCurrentUserVerified();
   }
-
-  // constructor
 
   Future<FirebaseUser> signInWithEmailandPassword(
       String email, String password) async {
-    // Start
 
-    // Step 2
-    FirebaseUser user = (await _auth.signInWithEmailAndPassword(
+    FirebaseUser user = (await auth.signInWithEmailAndPassword(
             email: email, password: password))
         .user;
 
-    // Done
-
-    print("signed in " + user.email);
     try {
       _profile.isloggedIn = true;
     } catch (Exception) {
+      subject.add(AuthStatus.undetermined);
       print(
           "EXCEPTION WHEN SETTING PROFILE.ISLOGGEDIN " + Exception.toString());
     }
+    isCurrentUserVerified();
     return user;
   }
 
   Future<void> signUpWithEmailAndPassword(
       String email, String name, String password, var photo) async {
-    FirebaseUser user = (await _auth.createUserWithEmailAndPassword(
+    FirebaseUser user = (await auth.createUserWithEmailAndPassword(
             email: email, password: password))
         .user;
+
     await _onSignUp(user, name, photo);
     await user.sendEmailVerification();
   }
 
   Future<void> _onSignUp(FirebaseUser user, String name, var photo) async {
-    DatabaseReference ref = _db.reference().child("users").child(user.uid);
+    DocumentReference refFirestore =
+        _firestore.collection("/users").document(user.uid);
 
-    return ref.update({
+    return refFirestore.setData({
       'uid': user.uid,
       'email': user.email,
       'stepCount': 0,
@@ -162,142 +141,112 @@ class UserService with ChangeNotifier {
     });
   }
 
-  Future<void> incrementStepCount(int steps) {
+  Future<void> incrementStepCount(int steps) async {
     final count = _profile.stepCount + steps;
     if (user != null) {
-      DatabaseReference ref = _db.reference().child("users").child(_user.uid);
-      return ref.update({'stepCount': count});
+      if (user.team == null) {
+        DocumentReference refFirestore =
+            _firestore.collection("/users").document(_user.uid);
+        return refFirestore.updateData({'stepCount': count});
+      } else {
+        DocumentReference userRef = _firestore
+            .collection("/teams")
+            .document(user.team)
+            .collection("members")
+            .document(_user.uid);
+
+        return userRef.updateData({'stepCount': count});
+      }
     } else
       return null;
   }
 
-  Future getTeamByName(String name) async {
-    Team temp = new Team();
-    if (user.team != null || checkTeamName) {
-      temp.teamName = name;
-      Set members = {};
-      final exists = await _db
-          .reference()
-          .child('users')
-          .reference()
-          .orderByChild("team")
-          .equalTo(name)
-          .once();
-      final teamExists = await _db
-          .reference()
-          .child("teams")
-          .reference()
-          .orderByChild("teamName")
-          .equalTo(name)
-          .once();
-      if (exists.value != null) {
-        int total = 0;
-        team = teamExists.value;
-        if (team != null) {
-          var v = Map.from(exists.value);
-          v.forEach((key, value) {
-//            print(value);
-            var m = Map.from(value);
-            members.add(m);
-            total += m['stepCount'];
-          });
-          temp.totalSteps = total;
-          temp.users = members.toList();
-        }
-        return temp;
-      } else
-        return null;
-    }
-  }
-
-  Future<bool> addNewTeam(Profile p, String teamName) async {
-    teamData = await getTeamByName(teamName);
-    List list = [];
-    list.add({
-      'name': user.name,
-      'stepCount': user.stepCount,
-      'email': user.email,
-      'uid': _user.uid
-    });
-    if (team == null && teamData == null && p != null) {
-      DatabaseReference ref = _db.reference().child("teams").push();
-      DatabaseReference uref = _db.reference().child("users").child(_user.uid);
-      try {
-        print("List: ");
-        print(list);
-        ref.update({'teamName': teamName, 'users': list});
-
-        uref.update({'team': teamName});
-        return true;
-      } catch (err) {
-        return false;
-      }
-    } else
-      return false;
-  }
-
-  Future<bool> addToExistingTeam(Profile p, String teamName) async {
-    checkTeamName = true;
-    teamData = await getTeamByName(teamName);
-    if (teamData != null || team != null) {
-      var tempList = new List.from(teamData.users);
-      print(tempList);
-      tempList.add({
-        'name': user.name,
-        'stepCount': user.stepCount,
-        'email': user.email,
-        'uid': _user.uid
-      });
-      DatabaseReference ref =
-          _db.reference().child("teams").child(Map.from(team).keys.first);
-      DatabaseReference uref = _db.reference().child("users").child(_user.uid);
-      uref.update({'team': teamName});
-      ref.update({
-        'users': tempList,
-      });
-      return true;
-    } else
-      return false;
-  }
-
   Future<void> signOut() async {
-    await _auth.signOut();
+    await auth.signOut();
+    _status = AuthStatus.unauthenticated;
+    subject.add(_status);
   }
 
   void dispose() {
     super.dispose();
-    _subscription.cancel();
+    subject.close();
   }
 
+  // The reason this function is called many times is because this is what triggers the startup widget
+  // to change screens based on the status
   Future<AuthStatus> isCurrentUserVerified() async {
-    FirebaseUser user = await _auth.currentUser();
+    FirebaseUser user = await auth.currentUser();
     try {
       try {
         user.reload();
       } catch (Exception) {
-        // print("USER.RELOAD() EXCEPTION " + Exception.toString());
         _status = AuthStatus.unauthenticated;
       }
       if (user == null) {
-        // print("USER IS NULL");
         _status = AuthStatus.unauthenticated;
       } else if (!user.isEmailVerified) {
-        // print("USER EMAIL NOT VERIFIED");
         _status = AuthStatus.unverified;
-      } else if (user.isEmailVerified && _profile.isloggedIn) {
-        // print("USER EMAIL VERIFIED");
+      } else if (user.isEmailVerified &&
+          _profile.isloggedIn &&
+          user.uid == _profile.id) {
         _status = AuthStatus.authenticated;
       }
     } catch (Exception) {
-      // print("EXCEPTION " + Exception.toString());
-      _status = AuthStatus.undeterminate;
+      _status = AuthStatus.undetermined;
     }
-    // print("STATUS BEFORE RETURN " + _status.toString());
+    subject.add(_status);
     return _status;
   }
 
   Future<bool> isDeviceRooted() async {
     bool rooted = await RootChecker.isDeviceRooted;
     return rooted;
+  }
+
+  // Function to store the current user in the class member called _profile
+  // Parameters: The user returned from the authentication service, data of the user returned from firestore
+  Future<void> _storeProfileIfVerified(
+      FirebaseUser u, Map<String, dynamic> data) async {
+    final profile = Profile.fromMap(data);
+    _profile = profile;
+    _profile.mapToProfile(data);
+    if (u.isEmailVerified && profile != null) {
+      _status = AuthStatus.authenticated;
+      subject.add(_status);
+    }
+  }
+
+  // Function to retrieve the current user object from firestore
+  // Parameters: The user returned from the authentication service, possible team id if user does not exist in users collection
+  Future<void> updateCurrentUser(FirebaseUser u, String teamID) async {
+    try {
+      _firestore
+          .collection("/users")
+          .document(u.uid)
+          .snapshots()
+          .listen((data) async {
+        // Check if user exists in users collection
+        // If user does not exist, retrieve the user from the members sub collection in teams
+        if (!data.exists) {
+          _firestore
+              .collection("/teams")
+              .document(teamID)
+              .collection("members")
+              .document(u.uid)
+              .snapshots()
+              .listen((data) async {
+            try {
+              await _storeProfileIfVerified(u, data.data);
+            } catch (Exception) {}
+          });
+        } else {
+          try {
+            await _storeProfileIfVerified(u, data.data);
+          } catch (Exception) {}
+        }
+      });
+    } catch (Exception) {
+      isCurrentUserVerified();
+    }
   }
 }

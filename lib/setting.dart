@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:Steps4Cause/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:Steps4Cause/services/user.dart';
@@ -35,8 +36,8 @@ class MapScreenState extends State<SettingsPage>
 
   @override
   Widget build(BuildContext context) {
-    final userService = Provider.of<UserService>(context);
-    var avatar = userService.user.photo;
+    final service = Provider.of<Services>(context);
+    var avatar = service.userService.user.photo;
     if (avatar != '') setAvatar(avatar);
     return new Scaffold(
         body: new Container(
@@ -178,7 +179,7 @@ class MapScreenState extends State<SettingsPage>
                             mainAxisSize: MainAxisSize.max,
                             children: <Widget>[
                               new Flexible(
-                                child: new Text(userService.user.name),
+                                child: new Text(service.userService.user.name),
                               ),
                             ],
                           )),
@@ -209,7 +210,7 @@ class MapScreenState extends State<SettingsPage>
                             mainAxisSize: MainAxisSize.max,
                             children: <Widget>[
                               new Flexible(
-                                child: new Text(userService.user.email),
+                                child: new Text(service.userService.user.email),
                               ),
                             ],
                           )),
@@ -241,7 +242,7 @@ class MapScreenState extends State<SettingsPage>
                             children: <Widget>[
                               new Flexible(
                                 child: new Text(
-                                    userService.user.stepCount.toString()),
+                                    service.userService.user.stepCount.toString()),
                               ),
                             ],
                           )),

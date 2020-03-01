@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:Steps4Cause/services/services.dart';
+import 'package:Steps4Cause/services/team.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/services/steps.dart';
@@ -80,9 +83,9 @@ class ChoiceCard extends StatelessWidget {
       "“Running allows me to set my mind free. Nothing seems impossible. Nothing unattainable.” — Kara Goucher"
     ];
 
-    final userService = Provider.of<UserService>(context);
+    final service = Provider.of<Services>(context);
     if (choice.title == 'Individual' && totalStepCount != null) {
-      StepsService(userService: userService);
+      StepsService(userService: service.userService, teamService: service.teamService);
 
       return Card(
         child: Center(
@@ -100,9 +103,10 @@ class ChoiceCard extends StatelessWidget {
                         radius: 120.0,
                         lineWidth: 5.0,
                         percent: roundDouble(
-                            userService.user.stepCount / totalStepCount),
+                            service.userService.user.stepCount /
+                                totalStepCount),
                         center: new Text((roundDouble(
-                                    userService.user.stepCount /
+                                    service.userService.user.stepCount /
                                         totalStepCount) *
                                 100)
                             .ceil()
@@ -110,8 +114,8 @@ class ChoiceCard extends StatelessWidget {
                         progressColor: Colors.green,
                         header: new Text("Your contribution out of total"),
                       ),
-                      myWidget(
-                          userService.user.stepCount.toString() + " Steps"),
+                      myWidget(service.userService.user.stepCount.toString() +
+                          " Steps"),
                       CarouselSlider(
                         height: 450.0,
                         items: quotes.map((i) {
@@ -144,7 +148,6 @@ class ChoiceCard extends StatelessWidget {
         ),
       );
     } else if (totalStepCount != null) {
-      userService.getTeamByName(userService.user.team);
       return Card(
           color: Colors.white, child: _myTeamView(context, totalStepCount));
     } else
@@ -186,6 +189,7 @@ class ChoiceCard extends StatelessWidget {
   }
 
   Widget _myTeamView(BuildContext context, int totalStepCount) {
+    final service = Provider.of<Services>(context);
     void _showDialog(head, txt) {
       // flutter defined function
       showDialog(
@@ -199,7 +203,9 @@ class ChoiceCard extends StatelessWidget {
               // usually buttons at the bottom of the dialog
               new FlatButton(
                 child: new Text("Close"),
-                onPressed: () {
+                onPressed: () async {
+                  FirebaseUser u = await service.userService.auth.currentUser();
+                  await service.userService.updateCurrentUser(u, service.teamService.team.id);
                   Navigator.of(context).pop();
                 },
               ),
@@ -209,8 +215,7 @@ class ChoiceCard extends StatelessWidget {
       );
     }
 
-    final userService = Provider.of<UserService>(context);
-    if (userService.user.team == null) {
+    if (service.userService.user.team == null) {
       TextStyle style = TextStyle(
           fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.black);
 
@@ -236,8 +241,8 @@ class ChoiceCard extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed: () async {
               try {
-                bool flag = await userService.addNewTeam(
-                    userService.user, tnController.text);
+                bool flag = await service.teamService
+                    .addNewTeam(service.userService.user, tnController.text);
                 if (flag) {
                   _showDialog(
                       "Great!",
@@ -265,8 +270,8 @@ class ChoiceCard extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
             onPressed: () async {
               try {
-                bool flag = await userService.addToExistingTeam(
-                    userService.user, tnController.text);
+                bool flag = await service.teamService
+                    .addUserToTeam(service.userService.user, tnController.text);
                 if (flag)
                   _showDialog(
                       "Great!",
@@ -298,87 +303,98 @@ class ChoiceCard extends StatelessWidget {
             ])),
       );
     } else {
-      List<dynamic> members = userService.teamData.users;
-      int teamTotal = (userService.teamData.totalSteps);
-      List<Widget> widgets = [];
 
-//    print(userService.teamData.totalSteps);
-      try {
-        members.forEach((f) {
-          widgets.add(ListTile(
-            leading: new CircularPercentIndicator(
-              radius: 50.0,
-              // lineWidth: 5.0,
-              percent: f['stepCount'] / teamTotal,
-              center: new Text(
-                  (f['stepCount'] / teamTotal * 100).ceil().toString() + "%"),
-              progressColor: Colors.blue,
-            ),
-            title: Text(f["name"]),
-            subtitle: Text(f["stepCount"].toString()),
-          ));
-        });
+      return new FutureBuilder(
+          future: service.teamService.getTeam(service.userService.user.team),
+          builder: (BuildContext context, AsyncSnapshot<Team> snapshot) {
+            if (snapshot.hasData) {
+              List<dynamic> members = snapshot.data.users;
 
-        widgets.add(Padding(
-            padding: const EdgeInsets.all(100.0),
-            child: CircularPercentIndicator(
-              radius: 100.0,
-              // lineWidth: 5.0,
-              percent: (teamTotal / totalStepCount),
-              center: new Text(
-                  (teamTotal / totalStepCount * 100).ceil().toString() + "%"),
-              progressColor: Colors.green,
-              header: Text("Team Total Contribution: " + teamTotal.toString()),
-            )));
-      } catch (err) {
-        try {
-          widgets.add(ListTile(
-            leading: new CircularPercentIndicator(
-              radius: 50.0,
-              // lineWidth: 5.0,
-              percent: userService.user.stepCount / userService.user.stepCount,
-              center: new Text(
-                  (userService.user.stepCount / userService.user.stepCount *
-                      100)
-                      .ceil()
-                      .toString() +
-                      "%"),
-              progressColor: Colors.blue,
-            ),
-            title: Text(userService.user.name),
-            subtitle: Text(userService.user.stepCount.toString()),
-          ));
-        }catch(e){
-          widgets.add(ListTile(
-            leading: new CircularPercentIndicator(
-              radius: 50.0,
-              // lineWidth: 5.0,
-              percent: userService.user.stepCount / userService.user.stepCount,
-              center: new Text("0%"),
-              progressColor: Colors.blue,
-            ),
-            title: Text(userService.user.name),
-            subtitle: Text(userService.user.stepCount.toString()),
-          ));
-        }
-        widgets.add(Padding(
-            padding: const EdgeInsets.all(100.0),
-            child: CircularPercentIndicator(
-              radius: 100.0,
-              // lineWidth: 5.0,
-              percent: (userService.user.stepCount / totalStepCount),
-              center: new Text(
-                  (userService.user.stepCount / totalStepCount * 100)
-                          .ceil()
-                          .toString() +
-                      "%"),
-              progressColor: Colors.green,
-              header: Text("Team Total Contribution: " +
-                  userService.user.stepCount.toString()),
-            )));
-      }
+              int teamTotal = snapshot.data.totalSteps;
+              List<Widget> widgets = [];
 
-      return ListView(children: widgets);
+              try {
+                members.forEach((f) {
+                  if (f['stepCount'] != 0) {
+                    widgets.add(ListTile(
+                      leading: new CircularPercentIndicator(
+                        radius: 50.0,
+                        // lineWidth: 5.0,
+                        percent: f['stepCount'] / teamTotal,
+                        center: new Text((f['stepCount'] / teamTotal * 100)
+                                .ceil()
+                                .toString() +
+                            "%"),
+                        progressColor: Colors.blue,
+                      ),
+                      title: Text(f["name"]),
+                      subtitle: Text(f["stepCount"].toString()),
+                    ));
+                  } else {
+                    widgets.add(ListTile(
+                      leading: new CircularPercentIndicator(
+                        radius: 50.0,
+                        // lineWidth: 5.0,
+                        percent: 0,
+                        center: new Text(0.ceil().toString() + "%"),
+                        progressColor: Colors.blue,
+                      ),
+                      title: Text(f["name"]),
+                      subtitle: Text(f["stepCount"].toString()),
+                    ));
+                  }
+                });
+
+                if (teamTotal != 0) {
+                  widgets.add(Padding(
+                      padding: const EdgeInsets.all(100.0),
+                      child: CircularPercentIndicator(
+                        radius: 100.0,
+                        // lineWidth: 5.0,
+                        percent: (teamTotal / totalStepCount),
+                        center: new Text((teamTotal / totalStepCount * 100)
+                                .ceil()
+                                .toString() +
+                            "%"),
+                        progressColor: Colors.green,
+                        header: Text(
+                            "Team Total Contribution: " + teamTotal.toString()),
+                      )));
+                } else {
+                  widgets.add(Padding(
+                      padding: const EdgeInsets.all(100.0),
+                      child: CircularPercentIndicator(
+                        radius: 100.0,
+                        // lineWidth: 5.0,
+                        percent: 0,
+                        center: new Text(0.ceil().toString() + "%"),
+                        progressColor: Colors.green,
+                        header: Text(
+                            "Team Total Contribution: " + teamTotal.toString()),
+                      )));
+                }
+              } catch (Exception) {
+                print("ERROR OCCURED WHEN CONSTRUCTING TEAM WDIGETS: " +
+                    Exception.toString());
+              }
+
+              return ListView(children: widgets);
+            }
+            return loading();
+          });
     }
   }
+}
+
+Widget loading() {
+  return Scaffold(
+      body: Center(
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        new CircularProgressIndicator(),
+        new Text("Loading"),
+      ],
+    ),
+  ));
 }
