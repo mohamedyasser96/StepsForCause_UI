@@ -10,12 +10,12 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final leaderboard = Leaderboard();
-
     return MultiProvider(
         providers: [
           // Make user stream available
-          StreamProvider<int>.value(value: leaderboard.totalStepCount),
-          StreamProvider<List<UserScore>>.value(value: leaderboard.topTenboard),
+          StreamProvider<int>.value(value: leaderboard.totalStepCountUsers),
+          StreamProvider<String>.value(value: leaderboard.totalStepCountTeams),
+          StreamProvider<List<dynamic>>.value(value: leaderboard.topTenboard),
         ],
 
         // All data will be available in this child and descendents

@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:Steps4Cause/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/services/user.dart';
 import 'package:password/password.dart';
@@ -133,15 +136,16 @@ class myLoginPageState extends State<myLoginPage> {
   void login(email, pw) async {
 //    var ip = await EnvironmentUtil.getEnvValueForKey('SERVER_IP');
 //    print(ip)
-    final userService = Provider.of<UserService>(context, listen: false);
+    final service = Provider.of<Services>(context, listen: false);
 
     try {
-      var u = await userService.signInWithEmailandPassword(email, pw);
+      var u = await service.userService.signInWithEmailandPassword(email, pw);
       if (!u.isEmailVerified)
         _showDialog("Verification", "Please verify your email first.");
       else
         Navigator.pop(context);
     } catch (e) {
+      print (e.toString());
       _showDialog("Incorrect!", "Email or Password is incorrect!");
     }
   }

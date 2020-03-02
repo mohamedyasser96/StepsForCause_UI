@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:Steps4Cause/services/leaderboard.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
 class MyLeaderboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final totalStepCount = Provider.of<int>(context);
-    final topTenboard = Provider.of<List<UserScore>>(context);
+    final totalStepCountUsers = Provider.of<int>(context);
+    final topTenboard = Provider.of<List<dynamic>>(context);
+    String totalStepCountTeams = Provider.of<String>(context);
+    int totalStepCount;
+
+    try {
+      totalStepCount = totalStepCountUsers + int.parse(totalStepCountTeams);
+    } catch (Exception) {}
+
     final list = <Widget>[];
     list.add(Padding(
         padding: const EdgeInsets.only(bottom: 30.0),
@@ -25,6 +31,9 @@ class MyLeaderboardPage extends StatelessWidget {
 
     topTenboard != null
         ? topTenboard.map((v) {
+          if (totalStepCount == 0) {
+            totalStepCount = 1;
+          }
             list.add(ListTile(
               title: Text(v.name),
               subtitle: Text(v.stepCount.toString()),

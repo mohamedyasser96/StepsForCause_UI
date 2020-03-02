@@ -1,3 +1,4 @@
+import 'package:Steps4Cause/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/services/user.dart';
 import 'dart:io';
@@ -155,14 +156,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 15.0,
                 ),
               ],
-//                 floatingActionButton: FloatingActionButton(
-//                  onPressed: getImage,
-//                  tooltip: 'Pick Image',
-//                  child: Icon(Icons.add_a_photo),
-//                ),
-
-              // crossAxisAlignment: CrossAxisAlignment.center,
-              // mainAxisAlignment: MainAxisAlignment.center,
             ),
           ),
         ),
@@ -189,9 +182,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void register(BuildContext context) async {
     try {
-      final userService = Provider.of<UserService>(context, listen: false);
+      final service = Provider.of<Services>(context, listen: false);
 
-      await userService.signUpWithEmailAndPassword(
+      await service.userService.signUpWithEmailAndPassword(
           emController.text,
           fnController.text + " " + lnController.text,
           pwController.text,
