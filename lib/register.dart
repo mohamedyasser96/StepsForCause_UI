@@ -23,7 +23,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final emController = TextEditingController();
   final pwController = TextEditingController();
   final algorithm = PBKDF2();
-  final _formKey = GlobalKey<FormState>();
   TextStyle style =
       TextStyle(fontFamily: 'Montserrat', fontSize: 20.0, color: Colors.white);
   File _image;
@@ -58,7 +57,7 @@ class _RegisterPageState extends State<RegisterPage> {
         onPressed: getImage,
         tooltip: 'Pick Image',
         child: Icon(Icons.add_a_photo));
-    final firstNameField = TextFormField(
+    final firstNameField = TextField(
       controller: fnController,
       obscureText: false,
       style: style,
@@ -70,7 +69,7 @@ class _RegisterPageState extends State<RegisterPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: const BorderSide(color: Colors.white))),
     );
-    final lastNameField = TextFormField(
+    final lastNameField = TextField(
       controller: lnController,
       obscureText: false,
       style: style,
@@ -82,7 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: const BorderSide(color: Colors.white))),
     );
-    final emailField = TextFormField(
+    final emailField = TextField(
       controller: emController,
       obscureText: false,
       style: style,
@@ -94,16 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: const BorderSide(color: Colors.white))),
     );
-    final passwordField = TextFormField(
-      validator: (value) {
-        Pattern pattern =
-            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})';
-        RegExp regex = new RegExp(pattern);
-        if (!regex.hasMatch(value))
-          return 'Enter Valid Password';
-        else
-          return null;
-      },
+    final passwordField = TextField(
       controller: pwController,
       obscureText: true,
       style: style,
@@ -123,13 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
-          if (_formKey.currentState.validate()) {
-            register(context);
-          } else
-            _invalidInput(
-                "ERROR",
-                "The string must contain at least 1 lowercase alphabetical character\n The string must contain at least 1 uppercase alphabetical character\n" +
-                    "The string must contain at least 1 numeric character\n The string must contain at least one special character");
+          register(context);
         },
         child: Text("Register",
             textAlign: TextAlign.center,
@@ -149,32 +133,29 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(36.0),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: <Widget>[
-                  (_image == null
-                      ? Text('No image selected.')
-                      : Image.file(_image)),
-                  SizedBox(height: 10.0),
-                  floating,
-                  SizedBox(height: 20.0),
-                  firstNameField,
-                  SizedBox(height: 20.0),
-                  lastNameField,
-                  SizedBox(height: 20.0),
-                  emailField,
-                  SizedBox(height: 20.0),
-                  passwordField,
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  registerButton,
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                ],
-              ),
+            child: ListView(
+              children: <Widget>[
+                (_image == null
+                    ? Text('No image selected.')
+                    : Image.file(_image)),
+                SizedBox(height: 10.0),
+                floating,
+                SizedBox(height: 20.0),
+                firstNameField,
+                SizedBox(height: 20.0),
+                lastNameField,
+                SizedBox(height: 20.0),
+                emailField,
+                SizedBox(height: 20.0),
+                passwordField,
+                SizedBox(
+                  height: 20.0,
+                ),
+                registerButton,
+                SizedBox(
+                  height: 15.0,
+                ),
+              ],
 //                 floatingActionButton: FloatingActionButton(
 //                  onPressed: getImage,
 //                  tooltip: 'Pick Image',
@@ -240,30 +221,6 @@ class _RegisterPageState extends State<RegisterPage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  //To be redesigned later on
-  void _invalidInput(head, txt) {
-    // flutter defined function
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text(head),
-          content: new Text(txt),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
               },
             ),
           ],
