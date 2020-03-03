@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:Steps4Cause/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:Steps4Cause/services/user.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:social_share_plugin/social_share_plugin.dart';
@@ -44,8 +44,8 @@ class _SocialSharePage extends State<SocialSharePage>
 
   @override
   Widget build(BuildContext context) {
-    final userService = Provider.of<UserService>(context);
-    var avatar = userService.user.photo;
+    final service = Provider.of<Services>(context);
+    var avatar = service.userService.user.photo;
     if (avatar != '') setAvatar(avatar);
     return new Scaffold(
         body: new Container(
