@@ -1,3 +1,4 @@
+import 'package:Steps4Cause/Share.dart';
 import 'package:Steps4Cause/services/leaderboard.dart';
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/setting.dart';
@@ -27,12 +28,13 @@ class _MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: new AppScaffold(
         body: TabBarView(
           children: [
             MyProfilePage(),
             MyLeaderboardPage(),
+            SocialSharePage(),
             SettingsPage(),
           ],
         ),
@@ -44,6 +46,9 @@ class _MyHomePage extends StatelessWidget {
             ),
             Tab(
               icon: new Icon(Icons.score),
+            ),
+            Tab(
+              icon: new Icon(Icons.rss_feed),
             ),
             Tab(
               icon: new Icon(Icons.settings),
