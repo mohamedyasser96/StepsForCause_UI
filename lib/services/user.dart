@@ -2,8 +2,12 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:root_checker/root_checker.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:root_checker/root_checker.dart';
 
 enum AuthStatus { undetermined, authenticated, unauthenticated, unverified }
 
@@ -81,6 +85,7 @@ class UserService with ChangeNotifier {
   AuthStatus get status => _status;
   Profile get user => _profile;
   BehaviorSubject<AuthStatus> subject;
+  GoogleSignIn googleSignIn = GoogleSignIn();
 
   UserService.instance()
       : auth = FirebaseAuth.instance,
@@ -102,7 +107,6 @@ class UserService with ChangeNotifier {
 
   Future<FirebaseUser> signInWithEmailandPassword(
       String email, String password) async {
-
     FirebaseUser user = (await auth.signInWithEmailAndPassword(
             email: email, password: password))
         .user;
@@ -126,6 +130,46 @@ class UserService with ChangeNotifier {
 
     await _onSignUp(user, name, photo);
     await user.sendEmailVerification();
+  }
+
+  Future<String> signInWithGoogle(BuildContext context) async {
+    // final userService = Provider.of<UserService>(context, listen: false);
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    final AuthResult authResult = await auth.signInWithCredential(credential);
+    final FirebaseUser user = authResult.user;
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+    final FirebaseUser currentUser = await auth.currentUser();
+    assert(user.uid == currentUser.uid);
+    await addSocialMediaAccount(currentUser);
+    return 'signInWithGoogle succeeded: $user';
+  }
+
+  void signOutGoogle() async {
+    await googleSignIn.signOut();
+
+    print("User Sign Out");
+  }
+
+  Future<void> addSocialMediaAccount(FirebaseUser user) async {
+    DocumentReference refFirestore =
+        _firestore.collection("/users").document(user.uid);
+    return refFirestore.setData({
+      'uid': user.uid,
+      'email': user.email,
+      'stepCount': 0,
+      'name': user.displayName,
+      "photoURL": user.photoUrl,
+      'isAdmin': false
+    });
   }
 
   Future<void> _onSignUp(FirebaseUser user, String name, var photo) async {
