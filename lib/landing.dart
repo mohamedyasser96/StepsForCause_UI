@@ -1,4 +1,4 @@
-import 'package:Steps4Cause/services/user.dart';
+import 'package:Steps4Cause/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:Steps4Cause/login.dart';
 import 'package:Steps4Cause/register.dart';
@@ -167,9 +167,9 @@ class MyLandingPage extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () {
-                          final userService =
-                              Provider.of<UserService>(context, listen: false);
-                          userService.signInWithGoogle(context);
+                          final service =
+                              Provider.of<Services>(context, listen: false);
+                          service.userService.signInWithGoogle(context);
                         },
                         child: _google(),
                       )
